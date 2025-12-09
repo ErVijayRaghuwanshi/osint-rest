@@ -58,7 +58,7 @@ osint-scraper/
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/osint-scraper.git
+git clone https://github.com/ErVijayRaghuwanshi/osint-scraper.git
 cd osint-scraper
 ````
 
