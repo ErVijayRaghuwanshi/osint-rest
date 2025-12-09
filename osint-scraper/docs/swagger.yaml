@@ -1,0 +1,60 @@
+basePath: /
+host: localhost:8080
+info:
+  contact: {}
+  description: High-performance OSINT scraping microservice.
+  title: OSINT Scraper API
+  version: "1.0"
+paths:
+  /api/snapchat/ping:
+    get:
+      description: Pings snapchat.com to ensure site is reachable
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check Snapchat availability
+      tags:
+      - Snapchat
+  /health:
+    get:
+      description: Returns OK if service is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check service health
+      tags:
+      - Health
+  /ping:
+    get:
+      description: Returns pong
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Ping test
+      tags:
+      - Misc
+swagger: "2.0"
