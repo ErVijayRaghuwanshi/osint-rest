@@ -6,6 +6,27 @@ info:
   title: OSINT Scraper API
   version: "1.0"
 paths:
+  /api/instagram/ping:
+    get:
+      description: Pings instagram.com to ensure site is reachable
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check Instagram availability
+      tags:
+      - Instagram
   /api/snapchat/ping:
     get:
       description: Pings snapchat.com to ensure site is reachable
@@ -27,6 +48,27 @@ paths:
       summary: Check Snapchat availability
       tags:
       - Snapchat
+  /api/twitter/ping:
+    get:
+      description: Pings twitter.com to ensure site is reachable
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check Twitter availability
+      tags:
+      - Twitter
   /health:
     get:
       description: Returns OK if service is running

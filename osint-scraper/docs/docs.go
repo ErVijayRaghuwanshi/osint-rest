@@ -15,6 +15,38 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/instagram/ping": {
+            "get": {
+                "description": "Pings instagram.com to ensure site is reachable",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instagram"
+                ],
+                "summary": "Check Instagram availability",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/snapchat/ping": {
             "get": {
                 "description": "Pings snapchat.com to ensure site is reachable",
@@ -25,6 +57,38 @@ const docTemplate = `{
                     "Snapchat"
                 ],
                 "summary": "Check Snapchat availability",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/twitter/ping": {
+            "get": {
+                "description": "Pings twitter.com to ensure site is reachable",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Twitter"
+                ],
+                "summary": "Check Twitter availability",
                 "responses": {
                     "200": {
                         "description": "OK",
