@@ -6,7 +6,7 @@ import (
     ginSwagger "github.com/swaggo/gin-swagger"
     "osint-scraper/internal/api/snapchat"
     "osint-scraper/internal/api/instagram"
-    "osint-scraper/internal/api/twitter"
+    "osint-scraper/internal/api/x"
     "osint-scraper/internal/config"
     "osint-scraper/internal/logger"
 )
@@ -19,7 +19,6 @@ func NewRouter(cfg config.Config, log logger.Logger) *gin.Engine {
 
     h := NewHandlers()
     r.GET("/health", h.HealthCheck)
-    r.GET("/ping", h.Ping) // optional global ping
 
     // -------------------------------
     // Snapchat Route Group
@@ -40,12 +39,12 @@ func NewRouter(cfg config.Config, log logger.Logger) *gin.Engine {
     }
 
     // -------------------------------
-    // Twitter Route Group
+    // X Route Group
     // -------------------------------
-    twitterService := twitter.NewService()
-    twitterGroup := r.Group("/api/twitter") // <--- full prefix
+    xService := x.NewService()
+    xGroup := r.Group("/api/x") // <--- full prefix
     {
-        twitter.RegisterRoutes(twitterGroup, twitterService)
+        x.RegisterRoutes(xGroup, xService)
     }
 
     return r

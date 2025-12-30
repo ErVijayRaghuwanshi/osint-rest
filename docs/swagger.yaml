@@ -1,0 +1,435 @@
+basePath: /
+definitions:
+  instagram.BioLink:
+    properties:
+      link_type:
+        type: string
+      lynx_url:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+  instagram.BiographyWithEntities:
+    properties:
+      entities:
+        description: Can be parsed into specific entity types if needed
+        items: {}
+        type: array
+      raw_text:
+        type: string
+    type: object
+  instagram.InstagramLocation:
+    properties:
+      address_json:
+        type: string
+      has_beacon:
+        type: boolean
+      location_id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      website:
+        type: string
+    type: object
+  instagram.UserInfo:
+    properties:
+      ai_agent_owner_username:
+        type: string
+      ai_agent_type:
+        type: string
+      bio_links:
+        items:
+          $ref: '#/definitions/instagram.BioLink'
+        type: array
+      biography:
+        type: string
+      biography_with_entities:
+        $ref: '#/definitions/instagram.BiographyWithEntities'
+      blocked_by_viewer:
+        type: boolean
+      business_address_json:
+        type: string
+      business_category_name:
+        type: string
+      business_contact_method:
+        type: string
+      business_email:
+        type: string
+      business_phone_number:
+        type: string
+      category_enum:
+        type: string
+      category_name:
+        type: string
+      country_block:
+        type: boolean
+      fb_page_calls_count:
+        description: |-
+          EdgeFelixVideoTimeline     EdgeConnection        `json:"edge_felix_video_timeline"`
+          EdgeFollow                 EdgeCount             `json:"edge_follow"`
+          EdgeFollowedBy             EdgeCount             `json:"edge_followed_by"`
+          EdgeMediaCollections       EdgeConnection        `json:"edge_media_collections"`
+          EdgeMutualFollowedBy       EdgeMutualFollowedBy  `json:"edge_mutual_followed_by"`
+          EdgeOwnerToTimelineMedia   EdgeConnection        `json:"edge_owner_to_timeline_media"`
+          EdgeRelatedProfiles        EdgeRelatedProfiles   `json:"edge_related_profiles"`
+          EdgeSavedMedia             EdgeConnection        `json:"edge_saved_media"`
+        type: integer
+      fb_page_email:
+        type: string
+      followed_by_viewer:
+        type: boolean
+      follows_viewer:
+        type: boolean
+      full_name:
+        type: string
+      group_metadata:
+        type: string
+      has_adjusted_ads:
+        type: boolean
+      has_ar_effects:
+        type: boolean
+      has_blocked_viewer:
+        type: boolean
+      has_channel:
+        type: boolean
+      has_guides:
+        type: boolean
+      has_requested_viewer:
+        type: boolean
+      id:
+        type: string
+      ig_custom_customer_sales_channel:
+        type: boolean
+      instafilms_count:
+        type: integer
+      instagram_location:
+        $ref: '#/definitions/instagram.InstagramLocation'
+      is_private:
+        type: boolean
+      is_profile_private:
+        type: boolean
+      is_verified:
+        type: boolean
+      is_verified_by_mv2:
+        type: boolean
+      joined_recently:
+        type: boolean
+      likely_has_audience:
+        type: boolean
+      media_count:
+        type: integer
+      mutual_followers_count:
+        type: integer
+      number_of_links_in_bio:
+        type: integer
+      page_id_for_ads:
+        type: string
+      page_number:
+        type: integer
+      profile_context:
+        type: string
+      profile_pic_id:
+        type: string
+      profile_pic_url:
+        type: string
+      profile_pic_url_hd:
+        type: string
+      profile_viewer_follow_button:
+        type: boolean
+      promo_share_user_follow_button:
+        type: boolean
+      requested_by_viewer:
+        type: boolean
+      restricted_by_viewer:
+        type: boolean
+      should_show_category:
+        type: boolean
+      should_show_public_contacts:
+        type: boolean
+      social_context:
+        type: string
+      social_context_list:
+        items:
+          type: string
+        type: array
+      status_emojis:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      total_clip_count:
+        type: integer
+      username:
+        type: string
+      verification_data:
+        $ref: '#/definitions/instagram.VerificationData'
+      watched_stories:
+        items:
+          type: string
+        type: array
+    type: object
+  instagram.UserInfoResponse:
+    properties:
+      data:
+        properties:
+          user:
+            $ref: '#/definitions/instagram.UserInfo'
+        type: object
+    type: object
+  instagram.VerificationData:
+    properties:
+      verification_method:
+        type: string
+      verification_status:
+        type: string
+    type: object
+  x.UserInfo:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      followers_count:
+        type: integer
+      following_count:
+        type: integer
+      id:
+        type: string
+      is_verified:
+        type: boolean
+      location:
+        type: string
+      name:
+        type: string
+      profile_image_url:
+        type: string
+      protected:
+        type: boolean
+      screen_name:
+        type: string
+      tweets_count:
+        type: integer
+      url:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: High-performance OSINT scraping microservice.
+  title: OSINT Scraper API
+  version: "1.0"
+paths:
+  /api/instagram/hashtags:
+    get:
+      description: Searches for Instagram hashtags based on a query string
+      parameters:
+      - description: Search query for hashtags
+        in: query
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Search Instagram hashtags
+      tags:
+      - Instagram
+  /api/instagram/ping:
+    get:
+      description: Pings instagram.com to ensure site is reachable
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check Instagram availability
+      tags:
+      - Instagram
+  /api/instagram/timeline:
+    get:
+      description: Fetches timeline/posts for a given Instagram username
+      parameters:
+      - description: Instagram username
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Instagram user timeline
+      tags:
+      - Instagram
+  /api/instagram/userinfo:
+    get:
+      description: Fetches detailed user information for a given Instagram username
+      parameters:
+      - description: 'Instagram username (default: sakshi_raghu_1c_)'
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/instagram.UserInfoResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Instagram user information
+      tags:
+      - Instagram
+  /api/snapchat/ping:
+    get:
+      description: Pings snapchat.com to ensure site is reachable
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check Snapchat availability
+      tags:
+      - Snapchat
+  /api/x/ping:
+    get:
+      description: Pings x.com to ensure site is reachable
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check X availability
+      tags:
+      - X
+  /api/x/userinfo:
+    get:
+      description: Fetches user information from X by screen name
+      parameters:
+      - description: X screen name
+        in: query
+        name: screen_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/x.UserInfo'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get X user information
+      tags:
+      - X
+  /health:
+    get:
+      description: Returns OK if service is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check service health
+      tags:
+      - Health
+swagger: "2.0"

@@ -1,21 +1,30 @@
 # OSINT Scraper REST API
 
-A high-performance, scalable, and extensible OSINT scraping microservice built with **Go** and **Gin**, featuring **Swagger UI documentation**.  
-This project is designed to easily add social media modules (Snapchat, Twitter, Instagram, etc.) with endpoints that check site availability or perform scraping tasks.
+A high-performance, scalable, and extensible **OSINT scraping microservice** built with **Go** and **Gin**, featuring **Swagger (OpenAPI) documentation** and a **clean, modular architecture**.
+
+This service is designed to support **multiple social media platforms** (Instagram, X/Twitter, Snapchat, etc.) with isolated modules, making it easy to add new platforms, scraping strategies, or data pipelines.
 
 ---
 
 ## Features
 
-- **Gin-based REST API** for high throughput
-- **Swagger UI** for API documentation
-- **Modular design** for social media services
-- **Snapchat endpoint**: `/api/snapchat/ping`
-- **Extensible architecture** for:
-  - Proxy rotation
-  - Session management (cookies, headers)
-  - Worker pools for concurrent scraping
-- Ready for **Docker & Kubernetes deployment**
+- ⚡ **Gin-based REST API** for high throughput
+- 📘 **Swagger UI** for interactive API documentation
+- 🧩 **Modular platform-based architecture**
+  - Instagram
+  - X (Twitter)
+  - Snapchat
+- 🧠 Clear separation of concerns:
+  - Routes
+  - Handlers
+  - Services
+  - Models
+- 🐳 **Docker-ready**, Kubernetes-friendly
+- 🛡 Designed for OSINT use-cases:
+  - Proxy rotation (future)
+  - Session & header management
+  - Rate limiting & retries
+  - Concurrent scraping workers
 
 ---
 
@@ -26,20 +35,47 @@ This project is designed to easily add social media modules (Snapchat, Twitter, 
 osint-scraper/
 ├── cmd/
 │   └── api/
-│       └── main.go           # Entry point
+│       └── main.go                # Application entrypoint
+│
 ├── internal/
 │   ├── api/
-│   │   ├── handlers.go       # Generic endpoints (health, ping)
-│   │   ├── router.go         # API routing
-│   │   └── snapchat/         # Snapchat module
-│   │       ├── handler.go
+│   │   ├── handlers.go            # Generic endpoints (health, base)
+│   │   ├── router.go              # Central API router
+│   │   │
+│   │   ├── instagram/             # Instagram module
+│   │   │   ├── handlers.go
+│   │   │   ├── routes.go
+│   │   │   ├── service.go
+│   │   │   └── models.go
+│   │   │
+│   │   ├── snapchat/              # Snapchat module
+│   │   │   ├── handlers.go
+│   │   │   ├── routes.go
+│   │   │   └── service.go
+│   │   │
+│   │   └── x/                     # X (Twitter) module
+│   │       ├── handlers.go
 │   │       ├── routes.go
-│   │       └── service.go
+│   │       ├── service.go
+│   │       └── models.go
+│   │
 │   ├── config/
+│   │   └── config.go               # Application configuration
+│   │
 │   └── logger/
-├── docs/                     # Swagger documentation (auto-generated)
+│       └── logger.go               # Structured logging
+│
+├── docs/                           # Swagger / OpenAPI docs
+│   ├── docs.go
+│   ├── swagger.json
+│   └── swagger.yaml
+│
+├── Dockerfile
+├── Makefile
 ├── go.mod
-└── go.sum
+├── go.sum
+├── README.md
+└── Testing.ipynb                   # Research & exploration (non-prod)
 
 ````
 
@@ -47,37 +83,34 @@ osint-scraper/
 
 ## Prerequisites
 
-- Go 1.22+ installed
-- `swag` CLI for Swagger documentation
-- Optional: Docker for containerized deployment
+- **Go 1.22+**
+- **Swag CLI** (for Swagger docs)
+- Optional:
+  - Docker
+  - Kubernetes
 
 ---
 
 ## Installation
 
-1. Clone the repository:
+### 1️⃣ Clone Repository
 
 ```bash
 git clone https://github.com/ErVijayRaghuwanshi/osint-scraper.git
 cd osint-scraper
 ````
 
-2. Initialize Go modules:
+### 2️⃣ Install Dependencies
 
 ```bash
-go mod tidy
+make deps
+make tidy
 ```
 
-3. Install Swag CLI (if not installed):
+### 3️⃣ Generate Swagger Docs
 
 ```bash
-go install github.com/swaggo/swag/cmd/swag@latest
-```
-
-4. Generate Swagger documentation:
-
-```bash
-swag init -g cmd/api/main.go -o docs
+make swagger
 ```
 
 ---
@@ -85,11 +118,15 @@ swag init -g cmd/api/main.go -o docs
 ## Running the API
 
 ```bash
-go run cmd/api/main.go
+make run
 ```
 
-* API server will start on default port `8080` (configurable via `PORT` environment variable)
-* Swagger UI available at: [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
+* API runs on **port 8080** (configurable via env)
+* Swagger UI:
+
+  ```
+  http://localhost:8080/swagger/index.html
+  ```
 
 ---
 
@@ -101,13 +138,13 @@ go run cmd/api/main.go
 GET /health
 ```
 
-**Response**
-
 ```json
 {
   "status": "ok"
 }
 ```
+
+---
 
 ### Snapchat Ping
 
@@ -115,72 +152,96 @@ GET /health
 GET /api/snapchat/ping
 ```
 
-**Response (reachable)**
-
 ```json
 {
   "message": "snapchat pong"
 }
 ```
 
-**Response (unreachable)**
+---
 
-```json
-{
-  "message": "snapchat unreachable"
-}
+### Instagram Ping
+
+```http
+GET /api/instagram/ping
 ```
 
 ---
 
-## Adding a New Social Media Module
+### X (Twitter) Ping
 
-1. Create a folder under `internal/api/`, e.g., `twitter/`
-2. Add:
+```http
+GET /api/x/ping
+```
 
-   * `service.go` → business logic
-   * `handler.go` → Gin HTTP handler
-   * `routes.go` → register routes to router
-3. Register the routes in `router.go`:
+---
+
+## Adding a New Platform Module
+
+Example: **Telegram**
+
+### 1️⃣ Create module directory
+
+```
+internal/api/telegram/
+├── handlers.go
+├── routes.go
+├── service.go
+├── models.go
+```
+
+### 2️⃣ Register routes
 
 ```go
-twitterService := twitter.NewService()
-twitter.RegisterRoutes(r.Group("/api/twitter"), twitterService)
+telegram.RegisterRoutes(router.Group("/api/telegram"))
 ```
 
-4. Add Swagger annotations in the handler for documentation.
+### 3️⃣ Add Swagger annotations in handlers
 
 ---
 
-## Docker Deployment
+## Docker Usage
 
-### Build Docker Image
+### Build Image
 
 ```bash
-docker build -t osint-scraper:latest .
+make docker-build
 ```
 
-### Run Docker Container
+### Run Container
 
 ```bash
-docker run -p 8080:8080 osint-scraper:latest
+make docker-run
 ```
 
 ---
 
-## Kubernetes Deployment
+## Kubernetes
 
-The project is designed to be **Kubernetes-ready**. Use the Docker image above and create deployments, services, and ingress resources as needed.
+The service is **Kubernetes-ready**.
+
+Typical resources:
+
+* Deployment
+* Service
+* ConfigMap / Secrets
+* Ingress (optional)
+
+```bash
+make k8s-apply
+```
 
 ---
 
 ## Future Enhancements
 
-* Proxy support for scraping requests
-* Multiple session management (cookies, headers)
-* Round-robin session selection
+* Proxy rotation per platform
+* Cookie & session pools
 * Distributed scraping workers
-* Additional social media modules (Instagram, Twitter, TikTok, etc.)
+* Elasticsearch integration
+* Async task queue (Redis / Kafka)
+* Auth (JWT / API keys)
+* Rate limiting & abuse protection
 
 ---
 
@@ -190,10 +251,13 @@ MIT License © 2025
 
 ---
 
-## Contact
+## Author
 
-Developed by Er Vijay Raghuwanshi
-Email: [ervijayraghuwanshi@gmail.com](mailto:ervijayraghuwanshi@gmail.com)
+**Er Vijay Raghuwanshi**
+📧 Email: [ervijayraghuwanshi@gmail.com](mailto:ervijayraghuwanshi@gmail.com)
 
+---
 
+> Built with ❤️ for OSINT, threat intelligence, and scalable backend systems.
 
+````

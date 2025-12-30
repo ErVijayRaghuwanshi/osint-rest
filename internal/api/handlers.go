@@ -24,14 +24,3 @@ func (h *Handlers) HealthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-
-// Ping godoc
-// @Summary      Ping test
-// @Description  Returns pong
-// @Tags         Misc
-// @Produce      json
-// @Success      200  {object}  map[string]string
-// @Router       /ping [get]
-func (h *Handlers) Ping(c *gin.Context) {
-    c.JSON(200, gin.H{"message": "pong"})
-}

@@ -1,10 +1,12 @@
-package twitter
+package x
 
 import "github.com/gin-gonic/gin"
 
 func RegisterRoutes(rg *gin.RouterGroup, svc *Service) {
 
-    h := NewHandler(svc)
+	h := NewHandler(svc)
 
-    rg.GET("/ping", h.Ping)
+	rg.GET("/ping", h.Ping)
+	rg.GET("/userinfo", h.GetUserInfo)
+	
 }
