@@ -39,6 +39,8 @@ deps:
 	go get github.com/swaggo/files
 	go get github.com/rs/zerolog
 	go install github.com/swaggo/swag/cmd/swag@latest
+	go get github.com/PuerkitoBio/goquery
+
 
 tidy:
 	go mod tidy
