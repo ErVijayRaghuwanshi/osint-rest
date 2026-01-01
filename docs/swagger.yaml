@@ -188,6 +188,106 @@ definitions:
       verification_status:
         type: string
     type: object
+  snapchat.RelatedAccountInfo:
+    properties:
+      publicProfileInfo: {}
+      subscribeLink:
+        $ref: '#/definitions/snapchat.SubscribeLink'
+    type: object
+  snapchat.SubscribeLink:
+    properties:
+      campaignFallbackValue:
+        type: string
+      campaignKeys:
+        items:
+          type: string
+        type: array
+      deepLinkUrl:
+        type: string
+      desktopPageUrl:
+        type: string
+      googleClickIdParam:
+        type: string
+      iosAppStoreUrl:
+        type: string
+      oneLinkBaseUrl:
+        type: string
+      pidFallbackValue:
+        type: string
+      pidKeys:
+        items:
+          type: string
+        type: array
+    type: object
+  snapchat.TimestampWrapper:
+    properties:
+      value:
+        type: string
+    type: object
+  snapchat.UserInfo:
+    properties:
+      address:
+        type: string
+      badge:
+        type: integer
+      bio:
+        type: string
+      bitmoji3d:
+        description: always null in sample
+      businessProfileId:
+        type: string
+      categoryStringId:
+        type: string
+      creationTimestampMs:
+        $ref: '#/definitions/snapchat.TimestampWrapper'
+      hasCuratedHighlights:
+        type: boolean
+      hasSpotlightHighlights:
+        type: boolean
+      hasStory:
+        type: boolean
+      lastUpdateTimestampMs:
+        $ref: '#/definitions/snapchat.TimestampWrapper'
+      mutableName:
+        type: string
+      primaryColor:
+        type: string
+      profilePictureUrl:
+        type: string
+      publisherType:
+        type: string
+      relatedAccountsInfo:
+        items:
+          $ref: '#/definitions/snapchat.RelatedAccountInfo'
+        type: array
+      sameAsLinks:
+        items:
+          type: string
+        type: array
+      shouldHideUsername:
+        type: boolean
+      snapcodeImageUrl:
+        type: string
+      squareHeroImageUrl:
+        type: string
+      subcategoryStringId:
+        type: string
+      subscriberCount:
+        type: string
+      title:
+        type: string
+      username:
+        type: string
+      websiteUrl:
+        type: string
+    type: object
+  snapchat.UserInfoResponse:
+    properties:
+      $case:
+        type: string
+      publicProfileInfo:
+        $ref: '#/definitions/snapchat.UserInfo'
+    type: object
   x.UserInfo:
     properties:
       created_at:
@@ -358,6 +458,36 @@ paths:
               type: string
             type: object
       summary: Check Snapchat availability
+      tags:
+      - Snapchat
+  /api/snapchat/userinfo:
+    get:
+      description: Fetches detailed user information for a given Snapchat username
+      parameters:
+      - description: 'Snapchat username (default: arora_girl)'
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/snapchat.UserInfoResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Snapchat user information
       tags:
       - Snapchat
   /api/x/ping:

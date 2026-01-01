@@ -221,6 +221,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/snapchat/userinfo": {
+            "get": {
+                "description": "Fetches detailed user information for a given Snapchat username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Snapchat"
+                ],
+                "summary": "Get Snapchat user information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Snapchat username (default: arora_girl)",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/snapchat.UserInfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/x/ping": {
             "get": {
                 "description": "Pings x.com to ensure site is reachable",
@@ -602,6 +648,158 @@ const docTemplate = `{
                 },
                 "verification_status": {
                     "type": "string"
+                }
+            }
+        },
+        "snapchat.RelatedAccountInfo": {
+            "type": "object",
+            "properties": {
+                "publicProfileInfo": {},
+                "subscribeLink": {
+                    "$ref": "#/definitions/snapchat.SubscribeLink"
+                }
+            }
+        },
+        "snapchat.SubscribeLink": {
+            "type": "object",
+            "properties": {
+                "campaignFallbackValue": {
+                    "type": "string"
+                },
+                "campaignKeys": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "deepLinkUrl": {
+                    "type": "string"
+                },
+                "desktopPageUrl": {
+                    "type": "string"
+                },
+                "googleClickIdParam": {
+                    "type": "string"
+                },
+                "iosAppStoreUrl": {
+                    "type": "string"
+                },
+                "oneLinkBaseUrl": {
+                    "type": "string"
+                },
+                "pidFallbackValue": {
+                    "type": "string"
+                },
+                "pidKeys": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "snapchat.TimestampWrapper": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "snapchat.UserInfo": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "badge": {
+                    "type": "integer"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "bitmoji3d": {
+                    "description": "always null in sample"
+                },
+                "businessProfileId": {
+                    "type": "string"
+                },
+                "categoryStringId": {
+                    "type": "string"
+                },
+                "creationTimestampMs": {
+                    "$ref": "#/definitions/snapchat.TimestampWrapper"
+                },
+                "hasCuratedHighlights": {
+                    "type": "boolean"
+                },
+                "hasSpotlightHighlights": {
+                    "type": "boolean"
+                },
+                "hasStory": {
+                    "type": "boolean"
+                },
+                "lastUpdateTimestampMs": {
+                    "$ref": "#/definitions/snapchat.TimestampWrapper"
+                },
+                "mutableName": {
+                    "type": "string"
+                },
+                "primaryColor": {
+                    "type": "string"
+                },
+                "profilePictureUrl": {
+                    "type": "string"
+                },
+                "publisherType": {
+                    "type": "string"
+                },
+                "relatedAccountsInfo": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/snapchat.RelatedAccountInfo"
+                    }
+                },
+                "sameAsLinks": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "shouldHideUsername": {
+                    "type": "boolean"
+                },
+                "snapcodeImageUrl": {
+                    "type": "string"
+                },
+                "squareHeroImageUrl": {
+                    "type": "string"
+                },
+                "subcategoryStringId": {
+                    "type": "string"
+                },
+                "subscriberCount": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "websiteUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "snapchat.UserInfoResponse": {
+            "type": "object",
+            "properties": {
+                "$case": {
+                    "type": "string"
+                },
+                "publicProfileInfo": {
+                    "$ref": "#/definitions/snapchat.UserInfo"
                 }
             }
         },
