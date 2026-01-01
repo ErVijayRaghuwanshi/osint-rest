@@ -6,8 +6,11 @@ metadata:
 spec:
   selector:
     app: osint-scraper
+  type: ClusterIP
   ports:
     - name: http
-      port: 80
-      targetPort: 8080
-  type: ClusterIP
+      port: 8080        # this is what other services use to connect
+      targetPort: 8080  # this is what your container exposes
+      protocol: TCP
+
+

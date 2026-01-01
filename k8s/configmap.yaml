@@ -6,3 +6,4 @@ metadata:
 data:
   PORT: "8080"
   LOG_LEVEL: "info"
+  proxy-cache-path: "/tmp/nginx-cache levels=1:2 keys_zone=osint-cache:10m inactive=60m max_size=1g"

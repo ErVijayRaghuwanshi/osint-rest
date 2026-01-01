@@ -4,8 +4,17 @@ metadata:
   name: osint-scraper-ingress
   namespace: osint
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-cache: osint-cache
+    nginx.ingress.kubernetes.io/proxy-cache-key: "$scheme$request_method$host$request_uri"
+    nginx.ingress.kubernetes.io/proxy-cache-valid: "200 302 10m"
+    nginx.ingress.kubernetes.io/proxy-cache-use-stale: "error timeout updating http_500 http_502 http_503 http_504"
+    nginx.ingress.kubernetes.io/proxy-ignore-headers: "Set-Cookie Cache-Control"
+    nginx.ingress.kubernetes.io/proxy-cache-methods: "GET HEAD"
+    # nginx.ingress.kubernetes.io/configuration-snippet: |
+    #   add_header X-Cache-Status $upstream_cache_status;
+
 spec:
+  ingressClassName: nginx
   rules:
     - host: osint.local
       http:
@@ -16,4 +25,4 @@ spec:
               service:
                 name: osint-scraper
                 port:
-                  number: 80
+                  name: http
