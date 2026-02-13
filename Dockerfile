@@ -15,6 +15,9 @@ RUN go mod download
 # Copy source code
 COPY . .
 
+# Swagger generation (if needed)
+# RUN go install github.com/swaggo/swag/cmd/swag@latest
+
 # Build the binary
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -o osint-scraper cmd/api/main.go
