@@ -114,6 +114,12 @@ make k8s-restart
 
 ## Accessing the Service
 
+### Option 0: Port Forwarding (Quick Test)
+
+```bash
+kubectl port-forward -n osint svc/osint-scraper 8080:8080
+```
+
 ### Option 1: Minikube Service (Recommended)
 
 ```bash
@@ -136,6 +142,11 @@ Add to `/etc/hosts`:
 
 ```text
 127.0.0.1 osint.local
+```
+
+Flush DNS cache (macOS):
+```bash
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
 ```
 
 Access:
@@ -243,3 +254,157 @@ OSINT • Backend • Distributed Systems
 ---
 
 > This Kubernetes setup is intentionally simple, secure, and extensible — suitable for OSINT pipelines, scraping workloads, and future scaling.
+
+
+
+
+Perfect! Let’s set this up so that `curl http://osint.local/health` just works **with your Ingress**, no port-forwarding needed. I’ll give you a **complete step-by-step macOS + Minikube solution**.
+
+---
+
+## 1️⃣ Ensure Minikube is running
+
+Check your Minikube status:
+
+```bash
+minikube status
+```
+
+You should see `host: Running` and `kubelet: Running`.
+
+If not, start Minikube (I recommend hyperkit driver on macOS):
+
+```bash
+minikube start --driver=hyperkit
+```
+
+---
+
+## 2️⃣ Enable the NGINX Ingress addon
+
+```bash
+minikube addons enable ingress
+```
+
+Check pods in `ingress-nginx` namespace:
+
+```bash
+kubectl get pods -n ingress-nginx
+```
+
+You should see:
+
+```
+ingress-nginx-controller-xxxxx   Running
+```
+
+---
+
+## 3️⃣ Map `osint.local` to Minikube IP
+
+Get Minikube IP:
+
+```bash
+minikube ip
+```
+
+Example output: `192.168.49.2`
+
+Edit `/etc/hosts`:
+
+```bash
+sudo nano /etc/hosts
+```
+
+Add:
+
+```
+192.168.49.2 osint.local
+```
+
+Flush DNS cache:
+
+```bash
+sudo dscacheutil -flushcache
+sudo killall -HUP mDNSResponder
+```
+
+Test:
+
+```bash
+ping osint.local
+```
+
+You should see `192.168.49.2`. ✅
+
+---
+
+## 4️⃣ Use **minikube tunnel** for Ingress routing
+
+Run:
+
+```bash
+sudo minikube tunnel
+```
+
+* This creates routes so your Mac can reach Ingress IPs.
+* Leave this terminal running (or run in background).
+* You may need `sudo` because it modifies network routes.
+
+---
+
+## 5️⃣ Confirm Ingress status
+
+```bash
+kubectl get ingress -n osint
+```
+
+You should see:
+
+```
+NAME                    CLASS   HOSTS         ADDRESS        PORTS   AGE
+osint-scraper-ingress   nginx   osint.local   192.168.49.2   80      1h
+```
+
+---
+
+## 6️⃣ Test Ingress
+
+Now you can access your service via Ingress:
+
+```bash
+curl http://osint.local/health
+```
+
+You should get a **200 OK** response from your `osint-scraper` pods. ✅
+
+---
+
+## 7️⃣ Optional: Browser test
+
+Open in browser:
+
+```
+http://osint.local/health
+```
+
+* This should also work.
+* No port-forwarding needed.
+
+---
+
+## 8️⃣ Notes / Gotchas
+
+1. `minikube tunnel` must be running while using Ingress.
+2. Do not use `127.0.0.1` for `/etc/hosts` mapping — must use Minikube IP.
+3. The `.local` domain sometimes conflicts with mDNS on macOS. If you see weird behavior, use `.test` instead:
+
+```
+192.168.49.2 osint.test
+```
+
+---
+
+If you want, I can also **rewrite your Ingress & ConfigMap for proper caching** so that the NGINX cache works fully with your setup.
+
+Do you want me to do that?

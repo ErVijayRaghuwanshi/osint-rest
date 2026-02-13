@@ -1,14 +1,312 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "High-performance OSINT scraping microservice.",
-        "title": "OSINT Scraper API",
-        "contact": {},
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8080",
-    "basePath": "/",
     "paths": {
+        "/admin/headers": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns the full header configuration for all platforms",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all platforms and their header sets",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/header.HeaderConfig"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/headers/{platform}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns the header configuration for a single platform",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get headers for a specific platform",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform name (e.g. instagram, snapchat, x, jaco)",
+                        "name": "platform",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/header.PlatformConfig"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Appends a new header entry to the platform's header list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add a new header set to a platform",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform name",
+                        "name": "platform",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Header entry to add",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/header.HeaderEntry"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/header.HeaderEntry"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/headers/{platform}/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Replaces the headers for a specific header entry by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update an existing header set",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform name",
+                        "name": "platform",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Header set ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated header entry",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/header.HeaderEntry"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/header.HeaderEntry"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Removes a header entry by ID from a platform",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete a header set",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform name",
+                        "name": "platform",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Header set ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/headers/{platform}/{id}/toggle": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Enables or disables a specific header entry",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Toggle a header set enabled/disabled",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Platform name",
+                        "name": "platform",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Header set ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/instagram/hashtags": {
             "get": {
                 "description": "Searches for Instagram hashtags based on a query string",
@@ -71,19 +369,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/instagram.PingResponse"
                         }
                     }
                 }
@@ -183,6 +469,230 @@
                 }
             }
         },
+        "/api/jaco/comments": {
+            "get": {
+                "description": "Fetch top-level comments for a Jaco reel",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jaco"
+                ],
+                "summary": "Get reel comments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Reel ID (default 23194424305516544)",
+                        "name": "rid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Max comments (default 20)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pagination cursor",
+                        "name": "base_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.CommentTreeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.BadRequestError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/jaco/ping": {
+            "get": {
+                "description": "Pings jaco.live to ensure site is reachable",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jaco"
+                ],
+                "summary": "Check Jaco availability",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.PingResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/jaco/reel": {
+            "get": {
+                "description": "Fetches user reel (short videos) by username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jaco"
+                ],
+                "summary": "Get Jaco user reel",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Jaco username (default: Amal16600)",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of reels to fetch (default: 12)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pagination cursor",
+                        "name": "next_since_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.UserReelResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.BadRequestError"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.NotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/jaco/userinfo": {
+            "get": {
+                "description": "Fetches user information from jaco by username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jaco"
+                ],
+                "summary": "Get Jaco user information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Jaco username (default: Uaegirl)",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.UserInfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.BadRequestError"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.NotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/jaco.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/snapchat/curatedhighlights": {
+            "get": {
+                "description": "Fetches curated highlights for a given Snapchat username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Snapchat"
+                ],
+                "summary": "Get Snapchat user curated highlights",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Snapchat username (default: arora_girl)",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/snapchat.CuratedHighlightsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/snapchat/ping": {
             "get": {
                 "description": "Pings snapchat.com to ensure site is reachable",
@@ -197,14 +707,51 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/snapchat.PingResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/snapchat/spotlighthighlights": {
+            "get": {
+                "description": "Fetches spotlight highlights for a given Snapchat username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Snapchat"
+                ],
+                "summary": "Get Snapchat user spotlight highlights",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Snapchat username (default : arora_girl)",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/snapchat.SpotlightHighlight"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
                             }
                         }
                     },
-                    "503": {
-                        "description": "Service Unavailable",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -275,19 +822,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/x.PingResponse"
                         }
                     }
                 }
@@ -306,7 +841,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "X screen name",
+                        "description": "X screen name (default: urstrulymahesh)",
                         "name": "screen_name",
                         "in": "query"
                     }
@@ -315,7 +850,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/x.UserInfo"
+                            "$ref": "#/definitions/x.UserInfoResponse"
                         }
                     },
                     "400": {
@@ -350,22 +885,20 @@
         },
         "/health": {
             "get": {
-                "description": "Returns OK if service is running",
+                "description": "Returns the health status of the API including runtime info",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Health"
                 ],
-                "summary": "Check service health",
+                "summary": "Health check",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -373,6 +906,57 @@
         }
     },
     "definitions": {
+        "header.HeaderConfig": {
+            "type": "object",
+            "properties": {
+                "platforms": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/header.PlatformConfig"
+                    }
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "header.HeaderEntry": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "header.PlatformConfig": {
+            "type": "object",
+            "properties": {
+                "cache_ttl_seconds": {
+                    "type": "integer"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "headers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/header.HeaderEntry"
+                    }
+                },
+                "rotation": {
+                    "type": "string"
+                }
+            }
+        },
         "instagram.BioLink": {
             "type": "object",
             "properties": {
@@ -403,6 +987,50 @@
                 }
             }
         },
+        "instagram.EdgeConnection": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "edges": {
+                    "type": "array",
+                    "items": {}
+                },
+                "page_info": {
+                    "$ref": "#/definitions/instagram.PageInfo"
+                }
+            }
+        },
+        "instagram.EdgeCount": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "instagram.EdgeMutualFollowedBy": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "edges": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
+        "instagram.EdgeRelatedProfiles": {
+            "type": "object",
+            "properties": {
+                "edges": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
         "instagram.InstagramLocation": {
             "type": "object",
             "properties": {
@@ -423,6 +1051,26 @@
                 },
                 "website": {
                     "type": "string"
+                }
+            }
+        },
+        "instagram.PageInfo": {
+            "type": "object",
+            "properties": {
+                "end_cursor": {
+                    "type": "string"
+                },
+                "has_next_page": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "instagram.PingResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Pong"
                 }
             }
         },
@@ -474,8 +1122,35 @@
                 "country_block": {
                     "type": "boolean"
                 },
+                "edge_follow": {
+                    "description": "EdgeFelixVideoTimeline     EdgeConnection        `json:\"edge_felix_video_timeline\"`",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/instagram.EdgeCount"
+                        }
+                    ]
+                },
+                "edge_followed_by": {
+                    "$ref": "#/definitions/instagram.EdgeCount"
+                },
+                "edge_media_collections": {
+                    "$ref": "#/definitions/instagram.EdgeConnection"
+                },
+                "edge_mutual_followed_by": {
+                    "$ref": "#/definitions/instagram.EdgeMutualFollowedBy"
+                },
+                "edge_related_profiles": {
+                    "description": "EdgeOwnerToTimelineMedia   EdgeConnection        `json:\"edge_owner_to_timeline_media\"`",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/instagram.EdgeRelatedProfiles"
+                        }
+                    ]
+                },
+                "edge_saved_media": {
+                    "$ref": "#/definitions/instagram.EdgeConnection"
+                },
                 "fb_page_calls_count": {
-                    "description": "EdgeFelixVideoTimeline     EdgeConnection        `json:\"edge_felix_video_timeline\"`\nEdgeFollow                 EdgeCount             `json:\"edge_follow\"`\nEdgeFollowedBy             EdgeCount             `json:\"edge_followed_by\"`\nEdgeMediaCollections       EdgeConnection        `json:\"edge_media_collections\"`\nEdgeMutualFollowedBy       EdgeMutualFollowedBy  `json:\"edge_mutual_followed_by\"`\nEdgeOwnerToTimelineMedia   EdgeConnection        `json:\"edge_owner_to_timeline_media\"`\nEdgeRelatedProfiles        EdgeRelatedProfiles   `json:\"edge_related_profiles\"`\nEdgeSavedMedia             EdgeConnection        `json:\"edge_saved_media\"`",
                     "type": "integer"
                 },
                 "fb_page_email": {
@@ -612,12 +1287,6 @@
                 },
                 "verification_data": {
                     "$ref": "#/definitions/instagram.VerificationData"
-                },
-                "watched_stories": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },
@@ -645,12 +1314,1564 @@
                 }
             }
         },
+        "jaco.Activity": {
+            "type": "object",
+            "properties": {
+                "fail_desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "jaco.AuthorInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_small": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "jaco.BadRequestError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "username parameter is required"
+                }
+            }
+        },
+        "jaco.Badge": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 4
+                },
+                "desc": {
+                    "type": "string",
+                    "example": ""
+                },
+                "grant_time": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Supporter Level"
+                },
+                "type": {
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "jaco.BadgeGallery": {
+            "type": "object",
+            "properties": {
+                "badge_count": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "badge_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jaco.GalleryBadge"
+                    }
+                }
+            }
+        },
+        "jaco.ChildCommentList": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jaco.Comment"
+                    }
+                },
+                "max_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "max_id_type": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "next_max_id": {
+                    "type": "integer",
+                    "example": -1
+                },
+                "next_since_id": {
+                    "type": "integer",
+                    "example": -1
+                },
+                "root_cmt_id": {
+                    "type": "string",
+                    "example": "5180692040351744"
+                },
+                "since_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "jaco.Comment": {
+            "type": "object",
+            "properties": {
+                "child_comment_list": {
+                    "$ref": "#/definitions/jaco.ChildCommentList"
+                },
+                "cmt_id": {
+                    "type": "string",
+                    "example": "5180692040351744"
+                },
+                "counters": {
+                    "$ref": "#/definitions/jaco.CommentCounters"
+                },
+                "create_at": {
+                    "type": "string",
+                    "example": "1750656698573"
+                },
+                "is_author_comment": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_author_liked": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_liked": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_pinned": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "lat": {
+                    "type": "number",
+                    "example": 0
+                },
+                "lng": {
+                    "type": "number",
+                    "example": 0
+                },
+                "mention_uid_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mflag": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "parse_entity_list": {
+                    "type": "array",
+                    "items": {}
+                },
+                "reel_uid": {
+                    "type": "string",
+                    "example": "3004008323"
+                },
+                "reply_cmt_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "reply_uid": {
+                    "type": "string",
+                    "example": ""
+                },
+                "rid": {
+                    "type": "string",
+                    "example": "23194424305516544"
+                },
+                "root_cmt_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "root_uid": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "text": {
+                    "type": "string",
+                    "example": "قلبييييييييي هالجمال بسم الله عليك 🥺🤍🤍🤍"
+                },
+                "uid": {
+                    "type": "string",
+                    "example": "3004631493"
+                },
+                "user": {
+                    "$ref": "#/definitions/jaco.CommentUser"
+                },
+                "vflag": {
+                    "type": "string",
+                    "example": "0"
+                }
+            }
+        },
+        "jaco.CommentCounters": {
+            "type": "object",
+            "properties": {
+                "comments_counter": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "likes_counter": {
+                    "type": "integer",
+                    "example": 4
+                }
+            }
+        },
+        "jaco.CommentTreeData": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 20
+                },
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jaco.Comment"
+                    }
+                },
+                "max_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "max_id_type": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "next_max_id": {
+                    "type": "integer",
+                    "example": -1
+                },
+                "next_since_id": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "root_cmt_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "since_id": {
+                    "type": "string",
+                    "example": "5191643520499712"
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 28
+                }
+            }
+        },
+        "jaco.CommentTreeResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/jaco.CommentTreeData"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "Success"
+                },
+                "error_code": {
+                    "type": "integer",
+                    "example": 10000
+                },
+                "request_id": {
+                    "type": "string",
+                    "example": "82874cc5-8319-423f-8e6f-92e9c94598be"
+                }
+            }
+        },
+        "jaco.CommentUser": {
+            "type": "object",
+            "properties": {
+                "avatar_hd": {
+                    "type": "string",
+                    "example": "https://img2.jacocdn.com/orj1080/b31709c5la1hswjkcqlofj20n00gmjsz.jpg"
+                },
+                "avatar_small": {
+                    "type": "string",
+                    "example": "https://img2.jacocdn.com/orj360/b31709c5la1hswjkcqlofj20n00gmjsz.jpg"
+                },
+                "badge_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jaco.Badge"
+                    }
+                },
+                "description": {
+                    "type": "string",
+                    "example": ""
+                },
+                "follow_me": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "follower_count": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "following": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "following_count": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "friend_count": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "icon": {
+                    "type": "string",
+                    "example": "https://img2.jacocdn.com/orj1080/b31709c5la1hswjkcqlofj20n00gmjsz.jpg"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "3004631493"
+                },
+                "level": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "أمال 🤍"
+                },
+                "special_reminder": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "tag_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "user_type": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "username": {
+                    "type": "string",
+                    "example": "jaco_er56cd"
+                },
+                "verified_type": {
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "jaco.Content": {
+            "type": "object",
+            "properties": {
+                "share_link": {
+                    "type": "string"
+                },
+                "video_info": {
+                    "$ref": "#/definitions/jaco.VideoInfo"
+                }
+            }
+        },
+        "jaco.CountInfo": {
+            "type": "object",
+            "properties": {
+                "follower_count": {
+                    "type": "string",
+                    "example": "32.8K"
+                },
+                "following_count": {
+                    "type": "string",
+                    "example": "1155"
+                }
+            }
+        },
+        "jaco.Counters": {
+            "type": "object",
+            "properties": {
+                "comments_counter": {
+                    "type": "integer"
+                },
+                "favorite_counter": {
+                    "type": "integer"
+                },
+                "gold_counter": {
+                    "type": "integer"
+                },
+                "likes_counter": {
+                    "type": "integer"
+                },
+                "share_counter": {
+                    "type": "integer"
+                },
+                "video_play_counter": {
+                    "type": "integer"
+                }
+            }
+        },
+        "jaco.CoverImage": {
+            "type": "object",
+            "properties": {
+                "height": {
+                    "type": "string"
+                },
+                "pid": {
+                    "type": "string"
+                },
+                "src": {
+                    "type": "integer"
+                },
+                "url_template": {
+                    "type": "string"
+                },
+                "urls": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "width": {
+                    "type": "string"
+                }
+            }
+        },
+        "jaco.Extra": {
+            "type": "object",
+            "properties": {
+                "spl_active": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "jaco.Features": {
+            "type": "object",
+            "properties": {
+                "is_official": {
+                    "type": "boolean"
+                },
+                "is_ugc": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "jaco.GalleryBadge": {
+            "type": "object",
+            "properties": {
+                "badge_image": {
+                    "type": "string",
+                    "example": "https://img.jacocdn.com/large/example.jpg"
+                },
+                "badge_name": {
+                    "type": "string",
+                    "example": "Creator"
+                },
+                "badge_name_ar": {
+                    "type": "string",
+                    "example": "صانع المحتوى"
+                },
+                "badge_name_en": {
+                    "type": "string",
+                    "example": "Creator"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "5"
+                },
+                "scheme": {
+                    "type": "string",
+                    "example": "jaco://discover/receivedRanking?..."
+                },
+                "series_type": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "type": {
+                    "type": "string",
+                    "example": "0"
+                }
+            }
+        },
+        "jaco.ImmersionProperty": {
+            "type": "object",
+            "properties": {
+                "extend": {
+                    "type": "string"
+                },
+                "immersion_url": {
+                    "type": "string"
+                },
+                "refresh_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "jaco.InternalServerError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "internal server error"
+                }
+            }
+        },
+        "jaco.ListItem": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "$ref": "#/definitions/jaco.Content"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "report_data": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uid": {
+                    "type": "string"
+                }
+            }
+        },
+        "jaco.Location": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                }
+            }
+        },
+        "jaco.Media": {
+            "type": "object",
+            "properties": {
+                "play_info": {
+                    "$ref": "#/definitions/jaco.PlayInfo"
+                }
+            }
+        },
+        "jaco.MediaDetail": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "type": "number"
+                },
+                "first_frame_cover_url": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "post_roll_duration": {
+                    "type": "number"
+                },
+                "post_roll_url": {
+                    "type": "string"
+                },
+                "quality_desc": {
+                    "type": "string"
+                },
+                "quality_index": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "video_codec": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            }
+        },
+        "jaco.MusicControl": {
+            "type": "object",
+            "properties": {
+                "is_use": {
+                    "type": "boolean"
+                },
+                "mute_change_name": {
+                    "type": "boolean"
+                },
+                "mute_share": {
+                    "type": "boolean"
+                },
+                "prevent_download": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "jaco.MusicInfo": {
+            "type": "object",
+            "properties": {
+                "ai_flag": {
+                    "type": "integer"
+                },
+                "album_name": {
+                    "type": "string"
+                },
+                "album_name_ar": {
+                    "type": "string"
+                },
+                "author_name": {
+                    "type": "string"
+                },
+                "author_name_ar": {
+                    "type": "string"
+                },
+                "author_uid": {
+                    "type": "string"
+                },
+                "language_type": {
+                    "type": "integer"
+                },
+                "music_desc": {
+                    "type": "string"
+                },
+                "music_desc_ar": {
+                    "type": "string"
+                },
+                "music_name": {
+                    "type": "string"
+                },
+                "music_name_ar": {
+                    "type": "string"
+                }
+            }
+        },
+        "jaco.MusicViewModel": {
+            "type": "object",
+            "properties": {
+                "@type": {
+                    "type": "string"
+                },
+                "author_info": {
+                    "$ref": "#/definitions/jaco.AuthorInfo"
+                },
+                "cover_image": {
+                    "$ref": "#/definitions/jaco.CoverImage"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "features": {
+                    "$ref": "#/definitions/jaco.Features"
+                },
+                "mid": {
+                    "type": "string"
+                },
+                "music_control": {
+                    "$ref": "#/definitions/jaco.MusicControl"
+                },
+                "music_info": {
+                    "$ref": "#/definitions/jaco.MusicInfo"
+                },
+                "offset_x": {
+                    "type": "integer"
+                },
+                "offset_y": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "integer"
+                }
+            }
+        },
+        "jaco.NotFoundError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "user not found"
+                }
+            }
+        },
+        "jaco.Object": {
+            "type": "object",
+            "properties": {
+                "@type": {
+                    "type": "string"
+                },
+                "content": {
+                    "$ref": "#/definitions/jaco.MusicViewModel"
+                }
+            }
+        },
+        "jaco.ObjectIndex": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "jaco.PingResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Pong"
+                }
+            }
+        },
+        "jaco.PlayInfo": {
+            "type": "object",
+            "properties": {
+                "default_codec": {
+                    "type": "string"
+                },
+                "default_quality": {
+                    "type": "integer"
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jaco.MediaDetail"
+                    }
+                }
+            }
+        },
+        "jaco.Properties": {
+            "type": "object",
+            "properties": {
+                "is_new": {
+                    "type": "boolean"
+                },
+                "pin": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "jaco.RankObject": {
+            "type": "object",
+            "properties": {
+                "topRank": {
+                    "type": "array",
+                    "items": {}
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "jaco.RemixCodec": {
+            "type": "object",
+            "properties": {
+                "remix_default_codec": {
+                    "type": "string"
+                },
+                "remix_default_quality": {
+                    "type": "integer"
+                }
+            }
+        },
+        "jaco.Settings": {
+            "type": "object",
+            "properties": {
+                "co_creation_able": {
+                    "type": "boolean"
+                },
+                "download_able": {
+                    "type": "boolean"
+                },
+                "extract_sound_able": {
+                    "type": "boolean"
+                },
+                "full_screen_able": {
+                    "type": "boolean"
+                },
+                "play_sound": {
+                    "type": "boolean"
+                },
+                "quote_sound_able": {
+                    "type": "boolean"
+                },
+                "reward_able": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "jaco.ShowTab": {
+            "type": "object",
+            "properties": {
+                "show_video_favorite": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "show_video_liked": {
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "jaco.Transcribe": {
+            "type": "object",
+            "properties": {
+                "lid": {
+                    "type": "string"
+                },
+                "mid": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                }
+            }
+        },
+        "jaco.User": {
+            "type": "object",
+            "properties": {
+                "administrator_type": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "auth_bit": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "avatar_hd": {
+                    "type": "string",
+                    "example": "https://img2.jacocdn.com/orj1080/b3158285la1i906ie78z1j20yi0yidj2.jpg"
+                },
+                "avatar_hd_pid": {
+                    "type": "string",
+                    "example": "b3158285la1i906ie78z1j20yi0yidj2"
+                },
+                "avatar_large": {
+                    "type": "string",
+                    "example": "https://img2.jacocdn.com/large/b3158285la1i906ie78z1j20yi0yidj2.jpg"
+                },
+                "avatar_small": {
+                    "type": "string",
+                    "example": "https://img2.jacocdn.com/orj360/b3158285la1i906ie78z1j20yi0yidj2.jpg"
+                },
+                "avatar_webp180": {
+                    "type": "string",
+                    "example": ""
+                },
+                "avatar_webp360": {
+                    "type": "string",
+                    "example": ""
+                },
+                "avatar_webp480": {
+                    "type": "string",
+                    "example": ""
+                },
+                "avatar_webp960": {
+                    "type": "string",
+                    "example": ""
+                },
+                "badge_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jaco.Badge"
+                    }
+                },
+                "birthday": {
+                    "type": "string",
+                    "example": ""
+                },
+                "black_me": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "city": {
+                    "type": "string",
+                    "example": ""
+                },
+                "country": {
+                    "type": "string",
+                    "example": ""
+                },
+                "cover_hd": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "https://img2.jacocdn.com/orj1080/b3158285la1i906ie78z1j20yi0yidj2.jpg"
+                    ]
+                },
+                "cover_pid": {
+                    "type": "string",
+                    "example": "b3158285la1i906ie78z1j20yi0yidj2_p,,,,"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "1691843311000"
+                },
+                "description": {
+                    "type": "string",
+                    "example": ""
+                },
+                "follow_me": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "follower_count": {
+                    "type": "integer",
+                    "example": 32827
+                },
+                "following": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "following_count": {
+                    "type": "integer",
+                    "example": 1155
+                },
+                "friend_count": {
+                    "type": "integer",
+                    "example": 1068
+                },
+                "gender": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "id": {
+                    "type": "string",
+                    "example": "3004531333"
+                },
+                "in_black": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "invitation_code": {
+                    "type": "string",
+                    "example": ""
+                },
+                "language": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "last_day_followers": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "level": {
+                    "type": "integer",
+                    "example": 32
+                },
+                "muted_count": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "muted_end_time": {
+                    "type": "string",
+                    "example": "1698162140608"
+                },
+                "muted_start_time": {
+                    "type": "string",
+                    "example": "1698075740608"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "شمسة"
+                },
+                "privacy": {
+                    "type": "string",
+                    "example": "345"
+                },
+                "province": {
+                    "type": "string",
+                    "example": ""
+                },
+                "reg_ip": {
+                    "type": "string",
+                    "example": ""
+                },
+                "reg_source": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "region": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "special_reminder": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "statuses_count": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "sub_type": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "tag_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "update_time": {
+                    "type": "string",
+                    "example": "1767800276000"
+                },
+                "user_mark": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "user_status": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "user_type": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "username": {
+                    "type": "string",
+                    "example": "Uaegirl"
+                },
+                "verified_code": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "verified_info": {
+                    "type": "string",
+                    "example": ""
+                },
+                "verified_type": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "vip_info": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
+        "jaco.UserBusiness": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "string",
+                    "example": "-1"
+                },
+                "country": {
+                    "type": "string",
+                    "example": ""
+                },
+                "power_sign": {
+                    "type": "string",
+                    "example": "wqHqfYQv..."
+                },
+                "website_list": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
+        "jaco.UserInfoData": {
+            "type": "object",
+            "properties": {
+                "badge_gallery": {
+                    "$ref": "#/definitions/jaco.BadgeGallery"
+                },
+                "count_info": {
+                    "$ref": "#/definitions/jaco.CountInfo"
+                },
+                "extra": {
+                    "$ref": "#/definitions/jaco.Extra"
+                },
+                "show_tab": {
+                    "$ref": "#/definitions/jaco.ShowTab"
+                },
+                "user": {
+                    "$ref": "#/definitions/jaco.User"
+                },
+                "user_business_info": {
+                    "$ref": "#/definitions/jaco.UserBusiness"
+                },
+                "user_info_status": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "user_meta": {
+                    "$ref": "#/definitions/jaco.UserMeta"
+                }
+            }
+        },
+        "jaco.UserInfoResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/jaco.UserInfoData"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "Success"
+                },
+                "error_code": {
+                    "type": "integer",
+                    "example": 10000
+                },
+                "request_id": {
+                    "type": "string",
+                    "example": "01f1ee42-a913-4ad2-832e-95e6fb6c8dec"
+                }
+            }
+        },
+        "jaco.UserMeta": {
+            "type": "object",
+            "properties": {
+                "keywords_ar": {
+                    "type": "string",
+                    "example": "صانع محتوى للبث المباشر"
+                },
+                "keywords_en": {
+                    "type": "string",
+                    "example": "live streaming content creator"
+                },
+                "meta_description_ar": {
+                    "type": "string",
+                    "example": "عش تجربة بث مباشر"
+                },
+                "meta_description_en": {
+                    "type": "string",
+                    "example": "Join Uaegirl's captivating streams"
+                },
+                "meta_title_ar": {
+                    "type": "string",
+                    "example": "بث Uaegirl بجاكو"
+                },
+                "meta_title_en": {
+                    "type": "string",
+                    "example": "Uaegirl Live: Stream Fun"
+                },
+                "uid": {
+                    "type": "string",
+                    "example": "3004531333"
+                }
+            }
+        },
+        "jaco.UserReelData": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "integer"
+                },
+                "immersion_experiment": {
+                    "type": "integer"
+                },
+                "immersion_property": {
+                    "$ref": "#/definitions/jaco.ImmersionProperty"
+                },
+                "immersion_type": {
+                    "type": "integer"
+                },
+                "just_watch_switch": {
+                    "type": "integer"
+                },
+                "last_video_play_counter": {
+                    "type": "integer"
+                },
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jaco.ListItem"
+                    }
+                }
+            }
+        },
+        "jaco.UserReelResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/jaco.UserReelData"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "Success"
+                },
+                "error_code": {
+                    "type": "integer",
+                    "example": 10000
+                },
+                "request_id": {
+                    "type": "string",
+                    "example": "01f1ee42-a913-4ad2-832e-95e6fb6c8dec"
+                }
+            }
+        },
+        "jaco.VideoInfo": {
+            "type": "object",
+            "properties": {
+                "activity": {
+                    "$ref": "#/definitions/jaco.Activity"
+                },
+                "cflag": {
+                    "type": "string"
+                },
+                "co_creation_able": {
+                    "type": "boolean"
+                },
+                "counters": {
+                    "$ref": "#/definitions/jaco.Counters"
+                },
+                "cover_image": {
+                    "$ref": "#/definitions/jaco.CoverImage"
+                },
+                "create_at": {
+                    "type": "string"
+                },
+                "is_favorite": {
+                    "type": "boolean"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "location": {
+                    "$ref": "#/definitions/jaco.Location"
+                },
+                "media": {
+                    "$ref": "#/definitions/jaco.Media"
+                },
+                "media_type": {
+                    "type": "integer"
+                },
+                "music_first_post": {
+                    "type": "boolean"
+                },
+                "object_index": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jaco.ObjectIndex"
+                    }
+                },
+                "objects": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/jaco.Object"
+                    }
+                },
+                "properties": {
+                    "$ref": "#/definitions/jaco.Properties"
+                },
+                "rankObject": {
+                    "$ref": "#/definitions/jaco.RankObject"
+                },
+                "remix_codec": {
+                    "$ref": "#/definitions/jaco.RemixCodec"
+                },
+                "remix_rid": {
+                    "type": "string"
+                },
+                "review_state": {
+                    "type": "integer"
+                },
+                "review_type": {
+                    "type": "integer"
+                },
+                "rid": {
+                    "type": "string"
+                },
+                "settings": {
+                    "$ref": "#/definitions/jaco.Settings"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "transcribe": {
+                    "$ref": "#/definitions/jaco.Transcribe"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "vflag": {
+                    "type": "string"
+                },
+                "video_type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "snapchat.BoolValue": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "snapchat.CuratedHighlight": {
+            "type": "object",
+            "properties": {
+                "canonicalUrlSuffix": {
+                    "type": "string"
+                },
+                "emoji": {
+                    "type": "string"
+                },
+                "highlightId": {
+                    "$ref": "#/definitions/snapchat.StringValue"
+                },
+                "isAttributed": {
+                    "$ref": "#/definitions/snapchat.BoolValue"
+                },
+                "snapList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/snapchat.CuratedSnap"
+                    }
+                },
+                "storySubtitle": {
+                    "type": "string"
+                },
+                "storyTapId": {
+                    "type": "string"
+                },
+                "storyTitle": {
+                    "type": "string"
+                },
+                "storyType": {
+                    "type": "integer"
+                },
+                "thumbnailUrl": {
+                    "$ref": "#/definitions/snapchat.StringValue"
+                },
+                "videoTrackUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "snapchat.CuratedHighlightsResponse": {
+            "type": "object",
+            "properties": {
+                "highlights": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/snapchat.CuratedHighlight"
+                    }
+                }
+            }
+        },
+        "snapchat.CuratedSnap": {
+            "type": "object",
+            "properties": {
+                "audioTranscriptionObjectUrl": {
+                    "type": "string"
+                },
+                "hasAttachment": {
+                    "type": "boolean"
+                },
+                "intervalStartTimeMs": {
+                    "type": "integer"
+                },
+                "isSponsored": {
+                    "type": "boolean"
+                },
+                "lat": {
+                    "type": "number"
+                },
+                "lng": {
+                    "type": "number"
+                },
+                "snapId": {
+                    "$ref": "#/definitions/snapchat.StringValue"
+                },
+                "snapIndex": {
+                    "type": "integer"
+                },
+                "snapMediaType": {
+                    "type": "integer"
+                },
+                "snapSubtitles": {
+                    "type": "string"
+                },
+                "snapTitle": {
+                    "type": "string"
+                },
+                "snapUrls": {
+                    "$ref": "#/definitions/snapchat.SnapURLs"
+                },
+                "timestampInSec": {
+                    "$ref": "#/definitions/snapchat.StringValue"
+                }
+            }
+        },
+        "snapchat.PingResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Pong"
+                }
+            }
+        },
         "snapchat.RelatedAccountInfo": {
             "type": "object",
             "properties": {
                 "publicProfileInfo": {},
                 "subscribeLink": {
                     "$ref": "#/definitions/snapchat.SubscribeLink"
+                }
+            }
+        },
+        "snapchat.SnapURLs": {
+            "type": "object",
+            "properties": {
+                "attachmentUrl": {
+                    "type": "string"
+                },
+                "mediaPreviewUrl": {
+                    "$ref": "#/definitions/snapchat.StringValue"
+                },
+                "mediaUrl": {
+                    "type": "string"
+                },
+                "overlayUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "snapchat.SpotlightHighlight": {
+            "type": "object",
+            "properties": {
+                "canonicalUrlSuffix": {
+                    "type": "string"
+                },
+                "emoji": {
+                    "type": "string"
+                },
+                "highlightId": {
+                    "type": "string"
+                },
+                "isAttributed": {
+                    "$ref": "#/definitions/snapchat.BoolValue"
+                },
+                "snapList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/snapchat.SpotlightSnap"
+                    }
+                },
+                "storyId": {
+                    "$ref": "#/definitions/snapchat.StringValue"
+                },
+                "storyShareId": {
+                    "type": "string"
+                },
+                "storySubtitle": {
+                    "type": "string"
+                },
+                "storyTapId": {
+                    "type": "string"
+                },
+                "storyTitle": {
+                    "type": "string"
+                },
+                "storyType": {
+                    "type": "integer"
+                },
+                "thumbnailUrl": {
+                    "$ref": "#/definitions/snapchat.StringValue"
+                },
+                "videoTrackUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "snapchat.SpotlightSnap": {
+            "type": "object",
+            "properties": {
+                "audioTranscriptionObjectUrl": {
+                    "type": "string"
+                },
+                "hasAttachment": {
+                    "type": "boolean"
+                },
+                "intervalStartTimeMs": {
+                    "type": "integer"
+                },
+                "isSponsored": {
+                    "type": "boolean"
+                },
+                "lat": {
+                    "type": "number"
+                },
+                "lng": {
+                    "type": "number"
+                },
+                "snapId": {
+                    "$ref": "#/definitions/snapchat.StringValue"
+                },
+                "snapIndex": {
+                    "type": "integer"
+                },
+                "snapMediaType": {
+                    "type": "integer"
+                },
+                "snapSubtitles": {
+                    "type": "string"
+                },
+                "snapTitle": {
+                    "type": "string"
+                },
+                "snapUrls": {
+                    "$ref": "#/definitions/snapchat.SnapURLs"
+                },
+                "timestampInSec": {
+                    "$ref": "#/definitions/snapchat.StringValue"
+                }
+            }
+        },
+        "snapchat.StringValue": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string"
                 }
             }
         },
@@ -797,49 +3018,179 @@
                 }
             }
         },
-        "x.UserInfo": {
+        "x.PingResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Pong"
+                }
+            }
+        },
+        "x.Privacy": {
+            "type": "object",
+            "properties": {
+                "protected": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "x.UserAvatar": {
+            "type": "object",
+            "properties": {
+                "image_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "x.UserCore": {
             "type": "object",
             "properties": {
                 "created_at": {
                     "type": "string"
                 },
+                "name": {
+                    "type": "string",
+                    "example": "Mahesh Babu"
+                },
+                "screen_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "x.UserInfoResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "user": {
+                            "type": "object",
+                            "properties": {
+                                "result": {
+                                    "$ref": "#/definitions/x.UserResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "x.UserLegacy": {
+            "type": "object",
+            "properties": {
+                "default_profile": {
+                    "type": "boolean"
+                },
+                "default_profile_image": {
+                    "type": "boolean"
+                },
                 "description": {
                     "type": "string"
+                },
+                "favourites_count": {
+                    "type": "integer"
                 },
                 "followers_count": {
                     "type": "integer"
                 },
-                "following_count": {
+                "friends_count": {
                     "type": "integer"
                 },
-                "id": {
-                    "type": "string"
+                "media_count": {
+                    "type": "integer"
                 },
-                "is_verified": {
+                "possibly_sensitive": {
                     "type": "boolean"
                 },
-                "location": {
-                    "type": "string"
-                },
-                "name": {
+                "profile_banner_url": {
                     "type": "string"
                 },
                 "profile_image_url": {
                     "type": "string"
                 },
-                "protected": {
-                    "type": "boolean"
-                },
-                "screen_name": {
-                    "type": "string"
-                },
-                "tweets_count": {
+                "statuses_count": {
                     "type": "integer"
                 },
                 "url": {
                     "type": "string"
+                },
+                "verified": {
+                    "type": "boolean"
                 }
             }
+        },
+        "x.UserLocation": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string"
+                }
+            }
+        },
+        "x.UserResult": {
+            "type": "object",
+            "properties": {
+                "__typename": {
+                    "type": "string"
+                },
+                "avatar": {
+                    "$ref": "#/definitions/x.UserAvatar"
+                },
+                "core": {
+                    "$ref": "#/definitions/x.UserCore"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_blue_verified": {
+                    "type": "boolean"
+                },
+                "legacy": {
+                    "$ref": "#/definitions/x.UserLegacy"
+                },
+                "location": {
+                    "$ref": "#/definitions/x.UserLocation"
+                },
+                "privacy": {
+                    "$ref": "#/definitions/x.Privacy"
+                },
+                "rest_id": {
+                    "type": "string"
+                },
+                "verification": {
+                    "$ref": "#/definitions/x.Verification"
+                },
+                "verification_info": {
+                    "$ref": "#/definitions/x.VerificationInfo"
+                }
+            }
+        },
+        "x.Verification": {
+            "type": "object",
+            "properties": {
+                "verified": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "x.VerificationInfo": {
+            "type": "object",
+            "properties": {
+                "is_identity_verified": {
+                    "type": "boolean"
+                },
+                "verified_since_msec": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "X-API-Key",
+            "in": "header"
         }
     }
 }

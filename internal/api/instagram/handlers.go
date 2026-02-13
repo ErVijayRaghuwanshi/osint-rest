@@ -2,17 +2,19 @@ package instagram
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 )
 
 type Handler struct {
 	svc *Service
+	log zerolog.Logger
 }
 
-func NewHandler(svc *Service) *Handler {
-	return &Handler{svc: svc}
+func NewHandler(svc *Service, log zerolog.Logger) *Handler {
+	return &Handler{svc: svc, log: log}
 }
 
 // Ping godoc
@@ -20,11 +22,10 @@ func NewHandler(svc *Service) *Handler {
 // @Description  Pings instagram.com to ensure site is reachable
 // @Tags         Instagram
 // @Produce      json
-// @Success      200  {object}  map[string]string
-// @Failure      503  {object}  map[string]string
+// @Success      200  {object}  PingResponse
 // @Router       /api/instagram/ping [get]
 func (h *Handler) Ping(c *gin.Context) {
-	ok := h.svc.CheckWebsite()
+	ok := h.svc.CheckWebsite(c.Request.Context())
 
 	if ok {
 		c.JSON(http.StatusOK, gin.H{"message": "instagram pong"})
@@ -45,13 +46,13 @@ func (h *Handler) Ping(c *gin.Context) {
 // @Router       /api/instagram/userinfo [get]
 func (h *Handler) GetUserInfo(c *gin.Context) {
 	username := c.Query("username")
-	fmt.Println("Requested Instagram username:", username)
+	h.log.Info().Str("username", username).Msg("Requested Instagram user info")
 	if username == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "username parameter is required"})
 		return
 	}
 
-	data, err := h.svc.GetUserInfo(username)
+	data, err := h.svc.GetUserInfo(c.Request.Context(), username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -62,7 +63,6 @@ func (h *Handler) GetUserInfo(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse response"})
 		return
 	}
-
 
 	c.JSON(http.StatusOK, userInfoResp)
 }
@@ -84,21 +84,9 @@ func (h *Handler) GetTimeline(c *gin.Context) {
 		return
 	}
 
-	data, err := h.svc.GetTimeline(username)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	var result interface{}
-	if err := json.Unmarshal(data, &result); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse response"})
-		return
-	}
-
-	c.JSON(http.StatusOK, result)
+	_ = username
+	c.JSON(http.StatusNotImplemented, gin.H{"error": "GetTimeline not implemented"})
 }
-
 
 // SearchHashtags godoc
 // @Summary      Search Instagram hashtags
@@ -112,35 +100,11 @@ func (h *Handler) GetTimeline(c *gin.Context) {
 // @Router       /api/instagram/hashtags [get]
 func (h *Handler) SearchHashtags(c *gin.Context) {
 	query := c.Query("query")
-	fmt.Println("Requested Instagram hashtag search query:", query)
 	if query == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "query parameter is required"})
 		return
 	}
 
-	data, err := h.svc.SearchHashtags(query)
-	fmt.Println("Hashtag search raw response data:", string(data))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// var hashtagResp HashTagSearchResponse
-	// if err := json.Unmarshal(data, &hashtagResp); err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse response"})
-	// 	return
-	// }
-
-	// c.JSON(http.StatusOK, hashtagResp)
-
-	// just return raw data for now
-	var result interface{}
-	if err := json.Unmarshal(data, &result); err != nil {
-		fmt.Println("Error unmarshaling hashtag search response:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse response"})
-		return
-	}
-
-	c.JSON(http.StatusOK, result)
-
+	_ = query
+	c.JSON(http.StatusNotImplemented, gin.H{"error": "SearchHashtags not implemented"})
 }

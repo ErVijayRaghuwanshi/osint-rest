@@ -6,4 +6,108 @@ metadata:
 data:
   PORT: "8080"
   LOG_LEVEL: "info"
+  GIN_MODE: "release"
+  SERVER_PORT: "8080"
+  SWAGGER_HOST: "osint.local"
+  APP_VERSION : "1.0.10"
+  API_TITLE: "OSINT Scraper API from ConfigMap"
+  API_DESCRIPTION: "High-performance OSINT scraping microservice. from ConfigMap"
   proxy-cache-path: "/tmp/nginx-cache levels=1:2 keys_zone=osint-cache:10m inactive=60m max_size=1g"
+  HEADERS_CONFIG_PATH: "/config/headers.json"
+  # 👇 Header management config
+  headers.json: |
+    {
+    "version": "1.0",
+    "platforms": {
+        "snapchat": {
+            "enabled": true,
+            "rotation": "round_robin",
+            "headers": [
+                {
+                    "id": "snap-1",
+                    "headers": {
+                        "User-Agent": "Mozilla/5.0 ...",
+                        "Authorization": "Bearer token1",
+                        "Accept": "application/json"
+                    }
+                },
+                {
+                    "id": "snap-2",
+                    "headers": {
+                        "User-Agent": "Mozilla/5.0 ...",
+                        "Authorization": "Bearer token2",
+                        "Accept": "application/json"
+                    }
+                }
+            ]
+        },
+        "x": {
+            "enabled": true,
+            "rotation": "round_robin",
+            "headers": [
+                {
+                    "id": "x-1",
+                    "headers": {
+                        "Accept": "*/*",
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+                        "Authorization": "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA",
+                        "cookie": "night_mode=2; personalization_id=\"v1_ghCHIePjBETcby5cGISyPg==\"; kdt=pLnJLTcX5PJKegezUlAMKUMSAGfR1fAf1hKsF8rT; auth_token=2c7689c7b2bb354954e519d60dc6dfdd49267e6c; ct0=07a7bd632f372f3665a80d538397d12d200c97894749e8bcb81dbd8e2b7c8caef838f786bc12bcf894b6a0192fef52099396f7a70dc3a65a13a4b49c0d255cdb7ca4bf1768333f725098fc508cbd92e0; twid=u%3D1885901238673477632; guest_id_ads=v1%3A176547561983798499; guest_id_marketing=v1%3A176547561983798499; guest_id=v1%3A176547561983798499; __cuid=967e43d4e2cb4002bd35bddb0cf3ac91; lang=en; __cf_bm=59gNwuZeFvMeb6KniX13LQJnx17qrcjE5f0SfeYEy38-1767633470.515388-1.0.1.1-VyKpEhke4qu3FDujJuoqA0EmbfClPOSf5rS0mVwr1wc2GOzAjnY1qS9PSQc0hWI4kzFakvIgNrzX9tz2idMxW_kJIaLR4zBNxp0_vkeHU_QwIjEoQ30Xt5ZbcAmOUpv7",
+                        "Connection": "keep-alive",
+                        "x-csrf-token": "07a7bd632f372f3665a80d538397d12d200c97894749e8bcb81dbd8e2b7c8caef838f786bc12bcf894b6a0192fef52099396f7a70dc3a65a13a4b49c0d255cdb7ca4bf1768333f725098fc508cbd92e0"
+                    }
+                }
+            ]
+        },
+        "jaco": {
+            "enabled": true,
+            "rotation": "round_robin",
+            "headers": [
+                {
+                    "id": "jaco-1",
+                    "headers": {
+                        "Accept": "*/*",
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+                        "cookie": "_gcl_au=1.1.839767905.1767199780; _ga=GA1.1.1998831651.1767199780; SUB=_2Ayj75KfwrrQvCqgnCUTaQpXowEmda01POjIgloXqnqw2s3Sz5B8KlvasGcirWxhHpFLg-2zAmdSNPOBdOqpvKTXr; userInfo={%22id%22:%223023687089%22%2C%22nickname%22:%22Vijay%20Raghuwanshi%22%2C%22username%22:%22jaco_8eyvonkl%22%2C%22avator%22:%22https://img2.jacocdn.com/orj360/3b9ae203la1huw5n9r44wj20n00goac1.jpg%22%2C%22SUB%22:%22_2Ayj75KfwrrQvCqgnCUTaQpXowEmda01POjIgloXqnqw2s3Sz5B8KlvasGcirWxhHpFLg-2zAmdSNPOBdOqpvKTXr%22%2C%22following%22:%220%22%2C%22followers%22:%220%22%2C%22coins%22:0%2C%22level%22:0%2C%22badge_list%22:[]}; uid=3023687089; visitor=0; acw_tc=0a06b11917680199708446296e3e2cdc27bd2c544b8274c3fb720cf15cb191; _ga_YHWYZH46YV=GS2.1.s1768019969$o3$g1$t1768020220$j57$l0$h30631725",
+                        "Connection": "keep-alive"
+                    }
+                }
+            ]
+        },
+        "instagram": {
+            "enabled": true,
+            "rotation": "round_robin",
+            "headers": [
+                {
+                    "id": "insta-1",
+                    "headers": {
+                        "Accept": "*/*",
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+                        "x-csrftoken": "PUesp9RgFVHZJ9Ejx-j6wT",
+                        "Connection": "keep-alive",
+                        "x-ig-app-id": "936619743392459"
+                    }
+                },
+                {
+                    "id": "insta-2",
+                    "headers": {
+                        "Accept": "*/*",
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+                        "x-csrftoken": "PUesp9RgFVHZJ9Ejx-j6wT",
+                        "Connection": "keep-alive",
+                        "x-ig-app-id": "936619743392459"
+                    }
+                },
+                {
+                    "id": "insta-3",
+                    "headers": {
+                        "Accept": "*/*",
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+                        "x-csrftoken": "PUesp9RgFVfgdsfHZJ9Ejx-j6wT",
+                        "Connection": "keep-alive",
+                        "x-ig-app-id": "936619743392445459"
+                    }
+                }
+            ]
+        }
+    }
+    }

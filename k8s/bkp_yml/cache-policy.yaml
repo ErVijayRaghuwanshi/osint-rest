@@ -1,0 +1,25 @@
+apiVersion: k8s.nginx.org/v1
+kind: NginxProxy
+metadata:
+  name: osint-cache-policy
+  namespace: osint
+spec:
+  cache:
+    enable: true
+    zone: osint-cache
+    key: "$scheme$request_method$host$request_uri"
+    valid:
+      - code: 200
+        time: 10m
+      - code: 302
+        time: 10m
+    useStale:
+      - error
+      - timeout
+      - http_500
+      - http_502
+      - http_503
+      - http_504
+    methods:
+      - GET
+      - HEAD

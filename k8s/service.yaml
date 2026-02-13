@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: osint-scraper
   namespace: osint
+  labels:
+    app: osint-scraper
 spec:
   selector:
     app: osint-scraper

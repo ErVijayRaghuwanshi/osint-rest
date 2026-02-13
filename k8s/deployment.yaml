@@ -6,7 +6,7 @@ metadata:
   labels:
     app: osint-scraper
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: osint-scraper
@@ -17,13 +17,26 @@ spec:
     spec:
       containers:
         - name: osint-scraper
-          image: osint-scraper:latest
+          image: osint-scraper:1.0.0
           imagePullPolicy: IfNotPresent
+
           ports:
             - containerPort: 8080
+
           envFrom:
             - configMapRef:
                 name: osint-scraper-config
+          env:
+            - name: HEADERS_CONFIG_PATH
+              value: /config/headers.json
+
+
+          volumeMounts:
+            - name: header-config
+              mountPath: /config/headers.json
+              subPath: headers.json
+              readOnly: true
+
           resources:
             requests:
               cpu: "100m"
@@ -31,15 +44,25 @@ spec:
             limits:
               cpu: "500m"
               memory: "256Mi"
+
           livenessProbe:
             httpGet:
               path: /health
               port: 8080
             initialDelaySeconds: 15
             periodSeconds: 20
+
           readinessProbe:
             httpGet:
               path: /health
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
+
+      volumes:
+        - name: header-config
+          configMap:
+            name: osint-scraper-config
+            items:
+              - key: headers.json
+                path: headers.json

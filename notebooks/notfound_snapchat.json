@@ -1,0 +1,41 @@
+{
+    "props": {
+        "pageProps": {
+            "pageProps": {
+                "viewerInfo": {
+                    "country": "IN",
+                    "locale": "hi-IN",
+                    "isGdprCountry": false
+                },
+                "localization": {
+                    "direction": "AUTO"
+                },
+                "pageMetadata": {
+                    "pageType": "NOT_FOUND",
+                    "pageTitle": "Snapchat",
+                    "shareId": ""
+                },
+                "deeplinkUrl": "https://click.snapchat.com/aVHG?pid=snapchat_download_page&af_dp=snapchat://unlock&af_web_dp=https://snapchat.com/download?purpose%3Dweb_stories%26sp%3Dnot_found&af_ios_url=https://apps.apple.com/app/apple-store/id447188370?pt%3D614006%26ct%3Dnot_found%26mt%3D8"
+            },
+            "status": 2,
+            "serverSideConfigs": {
+                "ssFetchConfigGating": "NO_CONFIG_TO_FETCH"
+            }
+        },
+        "status": 0,
+        "deviceType": "desktop",
+        "userAgentFromServer": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+        "__N_SSP": true
+    },
+    "page": "/at/[username]",
+    "query": {
+        "username": "@gjh"
+    },
+    "buildId": "19c5NJQp1PkR2KW6rQcWW",
+    "assetPrefix": "https://static.snapchat.com/profiles",
+    "isFallback": false,
+    "isExperimentalCompile": false,
+    "gssp": true,
+    "appGip": true,
+    "scriptLoader": []
+}

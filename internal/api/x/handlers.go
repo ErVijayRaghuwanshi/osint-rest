@@ -2,18 +2,19 @@ package x
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 )
 
 type Handler struct {
 	svc *Service
+	log zerolog.Logger
 }
 
-func NewHandler(svc *Service) *Handler {
-	return &Handler{svc: svc}
+func NewHandler(svc *Service, log zerolog.Logger) *Handler {
+	return &Handler{svc: svc, log: log}
 }
 
 // Ping godoc
@@ -21,11 +22,10 @@ func NewHandler(svc *Service) *Handler {
 // @Description  Pings x.com to ensure site is reachable
 // @Tags         X
 // @Produce      json
-// @Success      200  {object}  map[string]string
-// @Failure      503  {object}  map[string]string
+// @Success      200  {object}  PingResponse
 // @Router       /api/x/ping [get]
 func (h *Handler) Ping(c *gin.Context) {
-	ok := h.svc.CheckWebsite()
+	ok := h.svc.CheckWebsite(c.Request.Context())
 
 	if ok {
 		c.JSON(http.StatusOK, gin.H{"message": "x pong"})
@@ -39,31 +39,31 @@ func (h *Handler) Ping(c *gin.Context) {
 // @Description  Fetches user information from X by screen name
 // @Tags         X
 // @Produce      json
-// @Param        screen_name  query     string  false  "X screen name"
-// @Success      200          {object}  UserInfo
+// @Param        screen_name  query     string  false  "X screen name (default: urstrulymahesh)"
+// @Success      200          {object}  UserInfoResponse
 // @Failure      400          {object}  map[string]string
 // @Failure      404          {object}  map[string]string
 // @Failure      500          {object}  map[string]string
 // @Router       /api/x/userinfo [get]
 func (h *Handler) GetUserInfo(c *gin.Context) {
-	screenName := c.Query("screen_name")
-	if screenName == "" {
+	username := c.Query("screen_name")
+	h.log.Info().Str("screen_name", username).Msg("Requested X user info")
+	if username == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "screen_name parameter is required"})
 		return
 	}
 
-	data, err := h.svc.GetUserInfo(screenName)
+	data, err := h.svc.GetUserInfo(c.Request.Context(), username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println("Raw user info data:", string(data))
-	var userInfoResp UserInfo
+
+	var userInfoResp UserInfoResponse
 	if err := json.Unmarshal(data, &userInfoResp); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse user info"})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, userInfoResp)
 }
-

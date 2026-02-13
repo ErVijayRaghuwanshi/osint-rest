@@ -1,0 +1,9 @@
+apiVersion: k8s.nginx.org/v1
+kind: RateLimit
+metadata:
+  name: osint-rate-limit
+  namespace: osint
+spec:
+  rate: 60r/m
+  burst: 10
+  key: $remote_addr

@@ -4,7 +4,7 @@
 APP_NAME := osint-scraper
 
 # Read version safely; fallback to 'latest' if file missing or empty
-VERSION  := $(shell [ -f version ] && cat version || echo latest)
+VERSION  := $(shell [ -f VERSION ] && cat VERSION || echo latest)
 
 MAIN_FILE := cmd/api/main.go
 SWAG_DIR  := docs
@@ -40,6 +40,9 @@ deps:
 	go get github.com/rs/zerolog
 	go install github.com/swaggo/swag/cmd/swag@latest
 	go get github.com/PuerkitoBio/goquery
+	go get github.com/joho/godotenv
+	go install github.com/air-verse/air@latest
+
 
 
 tidy:
@@ -53,6 +56,9 @@ swagger:
 run: swagger
 	@echo "Starting API server..."
 	go run $(MAIN_FILE)
+
+run_dev:
+	air
 
 build:
 	@echo "Building binary..."
@@ -76,7 +82,7 @@ minikube-docker-env:
 	eval $$(minikube docker-env)
 
 ## Build Docker image inside Minikube
-docker-build-k8s:
+docker-build-k8s: swagger
 	@echo "Building Docker image inside Minikube..."
 	eval $$(minikube docker-env) && \
 	docker build -t $(APP_NAME):$(VERSION) .
@@ -84,6 +90,7 @@ docker-build-k8s:
 ## Deploy to Kubernetes (Minikube)
 k8s-deploy: docker-build-k8s
 	kubectl apply -f k8s/
+	kubectl rollout restart deployment/$(APP_NAME) -n osint
 
 ## Restart deployment (pick up new image)
 k8s-restart:

@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"runtime"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,14 +14,20 @@ func NewHandlers() *Handlers {
 }
 
 // HealthCheck godoc
-//
-//	@Summary		Check service health
-//	@Description	Returns OK if service is running
-//	@Tags			Health
-//	@Produce		json
-//	@Success		200	{object}	map[string]string
-//	@Router			/health [get]
+// @Summary      Health check
+// @Description  Returns the health status of the API including runtime info
+// @Tags         Health
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}
+// @Router       /health [get]
 func (h *Handlers) HealthCheck(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
-}
+	var mem runtime.MemStats
+	runtime.ReadMemStats(&mem)
 
+	c.JSON(http.StatusOK, gin.H{
+		"status":     "ok",
+		"goroutines": runtime.NumGoroutine(),
+		"alloc_mb":   mem.Alloc / 1024 / 1024,
+		"go_version": runtime.Version(),
+	})
+}

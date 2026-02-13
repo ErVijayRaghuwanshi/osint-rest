@@ -1,0 +1,67 @@
+{
+    "version": "1.0",
+    "platforms": {
+        "snapchat": {
+            "enabled": true,
+            "rotation": "round_robin",
+            "headers": [
+                {
+                    "id": "snap-1",
+                    "headers": {
+                        "User-Agent": "Mozilla/5.0 ...",
+                        "Authorization": "Bearer YOUR_TOKEN_HERE",
+                        "Accept": "application/json"
+                    }
+                }
+            ]
+        },
+        "instagram": {
+            "enabled": true,
+            "rotation": "round_robin",
+            "headers": [
+                {
+                    "id": "insta-1",
+                    "headers": {
+                        "Accept": "*/*",
+                        "User-Agent": "Mozilla/5.0 ...",
+                        "x-csrftoken": "YOUR_CSRF_TOKEN",
+                        "Connection": "keep-alive",
+                        "x-ig-app-id": "YOUR_APP_ID"
+                    }
+                }
+            ]
+        },
+        "x": {
+            "enabled": true,
+            "rotation": "round_robin",
+            "headers": [
+                {
+                    "id": "x-1",
+                    "headers": {
+                        "Accept": "*/*",
+                        "User-Agent": "Mozilla/5.0 ...",
+                        "Authorization": "Bearer YOUR_BEARER_TOKEN",
+                        "cookie": "YOUR_COOKIE_STRING",
+                        "Connection": "keep-alive",
+                        "x-csrf-token": "YOUR_CSRF_TOKEN"
+                    }
+                }
+            ]
+        },
+        "jaco": {
+            "enabled": true,
+            "rotation": "round_robin",
+            "headers": [
+                {
+                    "id": "jaco-1",
+                    "headers": {
+                        "Accept": "*/*",
+                        "User-Agent": "Mozilla/5.0 ...",
+                        "cookie": "YOUR_COOKIE_STRING",
+                        "Connection": "keep-alive"
+                    }
+                }
+            ]
+        }
+    }
+}

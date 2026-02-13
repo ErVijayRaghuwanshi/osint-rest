@@ -2,82 +2,100 @@
 
 A high-performance, scalable, and extensible **OSINT scraping microservice** built with **Go** and **Gin**, featuring **Swagger (OpenAPI) documentation** and a **clean, modular architecture**.
 
-This service is designed to support **multiple social media platforms** (Instagram, X/Twitter, Snapchat, etc.) with isolated modules, making it easy to add new platforms, scraping strategies, or data pipelines.
+This service is designed to support **multiple social media platforms** (Instagram, X/Twitter, Snapchat, Jaco) with isolated modules, making it easy to add new platforms, scraping strategies, or data pipelines.
 
 ---
 
 ## Features
 
-- ⚡ **Gin-based REST API** for high throughput
-- 📘 **Swagger UI** for interactive API documentation
-- 🧩 **Modular platform-based architecture**
+- **Gin-based REST API** for high throughput
+- **Swagger UI** for interactive API documentation
+- **Modular platform-based architecture**
   - Instagram
   - X (Twitter)
   - Snapchat
-- 🧠 Clear separation of concerns:
-  - Routes
-  - Handlers
-  - Services
-  - Models
-- 🐳 **Docker-ready**, Kubernetes-friendly
-- 🛡 Designed for OSINT use-cases:
-  - Proxy rotation (future)
-  - Session & header management
-  - Rate limiting & retries
-  - Concurrent scraping workers
+  - Jaco
+- **Shared HTTP client** with session management, cookie jars, and header injection
+- **In-memory response cache** with per-platform TTL configuration
+- **Header management system**
+  - Round-robin rotation of auth headers per platform
+  - Hot reload via `fsnotify` (no restart needed)
+  - Admin REST API for CRUD operations on headers (API key protected)
+  - Health scoring with auto-disable of failing headers
+- **Production hardened**
+  - `context.Context` propagation for cancellable requests
+  - Graceful shutdown (SIGINT/SIGTERM)
+  - Per-IP rate limiting
+  - CORS middleware
+  - Structured logging via `zerolog`
+- **Platform interface & registry** for expandable platform integration
+- **Docker-ready**, Kubernetes-friendly
+- **Unit tests** for header manager, cache, and health tracker
 
 ---
 
 ## Project Structure
 
 ```
-
 osint-scraper/
-├── cmd/
-│   └── api/
-│       └── main.go                # Application entrypoint
+├── cmd/api/
+│   └── main.go                     # Application entrypoint
 │
 ├── internal/
 │   ├── api/
-│   │   ├── handlers.go            # Generic endpoints (health, base)
-│   │   ├── router.go              # Central API router
-│   │   │
-│   │   ├── instagram/             # Instagram module
+│   │   ├── handlers.go             # Health check endpoint
+│   │   ├── router.go               # Central API router
+│   │   ├── admin/                  # Admin API (header CRUD)
 │   │   │   ├── handlers.go
-│   │   │   ├── routes.go
-│   │   │   ├── service.go
-│   │   │   └── models.go
-│   │   │
-│   │   ├── snapchat/              # Snapchat module
-│   │   │   ├── handlers.go
-│   │   │   ├── routes.go
-│   │   │   └── service.go
-│   │   │
-│   │   └── x/                     # X (Twitter) module
-│   │       ├── handlers.go
-│   │       ├── routes.go
-│   │       ├── service.go
-│   │       └── models.go
+│   │   │   └── routes.go
+│   │   ├── middleware/             # CORS, rate limiting, API key auth
+│   │   │   ├── apikey.go
+│   │   │   ├── cors.go
+│   │   │   └── ratelimit.go
+│   │   ├── common/                 # Shared response types
+│   │   │   └── responses.go
+│   │   ├── instagram/              # Instagram module
+│   │   ├── snapchat/               # Snapchat module
+│   │   ├── x/                      # X (Twitter) module
+│   │   └── jaco/                   # Jaco module
+│   │
+│   ├── httpclient/                 # Shared HTTP session & base service
+│   │   ├── session.go
+│   │   └── base_service.go
+│   │
+│   ├── header/                     # Header management system
+│   │   ├── manager.go              # Core logic + CRUD
+│   │   ├── model.go                # JSON structs
+│   │   ├── loader.go               # File loading
+│   │   ├── roundrobin.go           # Rotation logic
+│   │   ├── watcher.go              # fsnotify hot reload
+│   │   └── health.go               # Health scoring & auto-disable
+│   │
+│   ├── cache/                      # In-memory cache with TTL
+│   │   └── cache.go
+│   │
+│   ├── platform/                   # Platform interface & registry
+│   │   ├── platform.go
+│   │   └── registry.go
 │   │
 │   ├── config/
-│   │   └── config.go               # Application configuration
+│   │   └── config.go
 │   │
 │   └── logger/
-│       └── logger.go               # Structured logging
+│       └── logger.go
 │
+├── config/
+│   ├── headers.json                # Header config (gitignored)
+│   └── headers.example.json        # Template
+│
+├── k8s/                            # Kubernetes manifests
 ├── docs/                           # Swagger / OpenAPI docs
-│   ├── docs.go
-│   ├── swagger.json
-│   └── swagger.yaml
-│
 ├── Dockerfile
 ├── Makefile
-├── go.mod
-├── go.sum
-├── README.md
-└── Testing.ipynb                   # Research & exploration (non-prod)
-
-````
+├── .env.example
+├── .gitignore
+└── README.md
+```
 
 ---
 
@@ -93,21 +111,29 @@ osint-scraper/
 
 ## Installation
 
-### 1️⃣ Clone Repository
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/ErVijayRaghuwanshi/osint-scraper.git
 cd osint-scraper
-````
+```
 
-### 2️⃣ Install Dependencies
+### 2. Setup Configuration
+
+```bash
+cp .env.example .env
+cp config/headers.example.json config/headers.json
+# Edit both files with your actual values
+```
+
+### 3. Install Dependencies
 
 ```bash
 make deps
 make tidy
 ```
 
-### 3️⃣ Generate Swagger Docs
+### 4. Generate Swagger Docs
 
 ```bash
 make swagger
@@ -121,12 +147,8 @@ make swagger
 make run
 ```
 
-* API runs on **port 8080** (configurable via env)
-* Swagger UI:
-
-  ```
-  http://localhost:8080/swagger/index.html
-  ```
+- API runs on **port 8080** (configurable via `SERVER_PORT` env)
+- Swagger UI: `http://localhost:8080/swagger/index.html`
 
 ---
 
@@ -140,77 +162,67 @@ GET /health
 
 ```json
 {
-  "status": "ok"
+  "status": "ok",
+  "goroutines": 8,
+  "alloc_mb": 2,
+  "go_version": "go1.25.5"
 }
 ```
 
----
-
-### Snapchat Ping
+### Platform Ping
 
 ```http
 GET /api/snapchat/ping
-```
-
-```json
-{
-  "message": "snapchat pong"
-}
-```
-
----
-
-### Instagram Ping
-
-```http
 GET /api/instagram/ping
+GET /api/x/ping
+GET /api/jaco/ping
 ```
 
----
-
-### X (Twitter) Ping
+### User Info
 
 ```http
-GET /api/x/ping
+GET /api/snapchat/userinfo?username=arora_girl
+GET /api/instagram/userinfo?username=sakshi_raghu_1c_
+GET /api/x/userinfo?screen_name=urstrulymahesh
+GET /api/jaco/userinfo?username=Uaegirl
+```
+
+### Admin API (requires `X-API-Key` header)
+
+```http
+GET    /admin/headers                     # List all platforms
+GET    /admin/headers/:platform           # List headers for platform
+POST   /admin/headers/:platform           # Add header set
+PUT    /admin/headers/:platform/:id       # Update header set
+DELETE /admin/headers/:platform/:id       # Delete header set
+POST   /admin/headers/:platform/:id/toggle # Toggle enabled/disabled
 ```
 
 ---
 
 ## Adding a New Platform Module
 
-Example: **Telegram**
+1. Create module directory:
+   ```
+   internal/api/telegram/
+   ├── handlers.go   (embed zerolog.Logger, use c.Request.Context())
+   ├── routes.go
+   ├── service.go    (embed httpclient.BaseService)
+   └── models.go
+   ```
 
-### 1️⃣ Create module directory
+2. Register routes in `internal/api/router.go`
 
-```
-internal/api/telegram/
-├── handlers.go
-├── routes.go
-├── service.go
-├── models.go
-```
+3. Add platform headers to `config/headers.json`
 
-### 2️⃣ Register routes
-
-```go
-telegram.RegisterRoutes(router.Group("/api/telegram"))
-```
-
-### 3️⃣ Add Swagger annotations in handlers
+4. Add Swagger annotations in handlers
 
 ---
 
 ## Docker Usage
 
-### Build Image
-
 ```bash
 make docker-build
-```
-
-### Run Container
-
-```bash
 make docker-run
 ```
 
@@ -218,46 +230,49 @@ make docker-run
 
 ## Kubernetes
 
-The service is **Kubernetes-ready**.
-
-Typical resources:
-
-* Deployment
-* Service
-* ConfigMap / Secrets
-* Ingress (optional)
-
 ```bash
 make k8s-apply
 ```
 
 ---
 
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SERVER_PORT` | `8080` | API server port |
+| `SWAGGER_HOST` | `localhost:8080` | Swagger UI host |
+| `GIN_MODE` | `release` | Gin mode (debug/release) |
+| `HEADERS_CONFIG_PATH` | `./config/headers.json` | Path to header config |
+| `ADMIN_API_KEY` | (none) | API key for admin endpoints |
+| `API_TITLE` | `OSINT Scraper API` | Swagger title |
+| `API_DESCRIPTION` | (default) | Swagger description |
+
+---
+
 ## Future Enhancements
 
-* Proxy rotation per platform
-* Cookie & session pools
-* Distributed scraping workers
-* Elasticsearch integration
-* Async task queue (Redis / Kafka)
-* Auth (JWT / API keys)
-* Rate limiting & abuse protection
+- Proxy rotation per platform
+- Redis cache adapter for distributed deployments
+- Weighted & failover header rotation strategies
+- Platform scaffold generator (`make new-platform name=telegram`)
+- Elasticsearch integration
+- Async task queue (Redis / Kafka)
+- Metrics & observability (Prometheus)
 
 ---
 
 ## License
 
-MIT License © 2025
+MIT License
 
 ---
 
 ## Author
 
 **Er Vijay Raghuwanshi**
-📧 Email: [ervijayraghuwanshi@gmail.com](mailto:ervijayraghuwanshi@gmail.com)
+Email: [ervijayraghuwanshi@gmail.com](mailto:ervijayraghuwanshi@gmail.com)
 
 ---
 
-> Built with ❤️ for OSINT, threat intelligence, and scalable backend systems.
-
-````
+> Built for OSINT, threat intelligence, and scalable backend systems.

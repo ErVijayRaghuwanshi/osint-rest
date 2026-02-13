@@ -1,173 +1,70 @@
 package snapchat
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"net/http/cookiejar"
-	"time"
+	"osint-scraper/internal/header"
+	"osint-scraper/internal/httpclient"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/rs/zerolog"
 )
 
-type Session struct {
-    client *http.Client
-    jar   *cookiejar.Jar
-    headers map[string]string
-}
-
-
 type Service struct {
-    session *Session
+	*httpclient.BaseService
 }
 
-// NewSession creates a new authenticated Snapchat session
-// It maintains cookies and headers across multiple requests
-func NewSession() (*Session, error) {
-    jar, err := cookiejar.New(nil)
-    if err != nil {
-        return nil, err
-    }
-
-    client := &http.Client{
-        Timeout: 15 * time.Second,
-        Jar:     jar,
-        CheckRedirect: func(req *http.Request, via []*http.Request) error {
-            return nil
-        },
-    }
-
-    return &Session{
-        client:  client,
-        jar:     jar,
-        headers: make(map[string]string),
-    }, nil
-}
-
-// SetAuthHeaders sets the authentication headers for the session
-func (s *Session) SetAuthHeaders(headers map[string]string) {
-    if headers == nil {
-        return
-    }
-    for k, v := range headers {
-        s.headers[k] = v
-    }
-}
-
-// DoRequest performs an HTTP request with the session's client and maintains cookies
-func (s *Session) DoRequest(
-	method, url string,
-	headers map[string]string,
-	body io.Reader,
-) (*http.Response, error) {
-
-	req, err := http.NewRequest(method, url, body)
-	if err != nil {
-		return nil, err
+func NewService(hm *header.Manager, log zerolog.Logger) *Service {
+	return &Service{
+		BaseService: httpclient.NewBaseService("snapchat", "https://www.snapchat.com", hm, log),
 	}
-
-	// Default headers
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
-	req.Header.Set("Connection", "keep-alive")
-
-
-
-	// Session-level headers (auth, csrf, etc.)
-	for k, v := range s.headers {
-		req.Header.Set(k, v)
-	}
-
-	// Per-request headers (override session headers if needed)
-	for k, v := range headers {
-		req.Header.Set(k, v)
-	}
-
-	return s.client.Do(req)
-}
-
-// Get performs a GET request
-func (s *Session) Get(url string, headers map[string]string) (*http.Response, error) {
-	return s.DoRequest("GET", url, headers, nil)
-}
-
-// Post performs a POST request
-func (s *Session) Post(url string, headers map[string]string, body io.Reader) (*http.Response, error) {
-	return s.DoRequest("POST", url, headers, body)
-}
-
-// Close closes the session
-func (s *Session) Close() error {
-	s.client.CloseIdleConnections()
-	return nil
-}
-
-
-func NewService() *Service {
-    return &Service{}
-}
-
-// InitializeSession creates and initializes an authenticated session
-func (s *Service) InitializeSession() (*Session, error) {
-	session, err := NewSession()
-	if err != nil {
-		return nil, err
-	}
-	s.session = session
-	return session, nil
-}
-
-// GetSession returns the current session
-func (s *Service) GetSession() *Session {
-	return s.session
 }
 
 // CheckWebsite checks if Snapchat website is reachable
-func (s *Service) CheckWebsite() bool {
-    client := http.Client{
-        Timeout: 9 * time.Second,
-    }
-
-    resp, err := client.Get("https://www.snapchat.com")
-    if err != nil {
-        return false
-    }
-    defer resp.Body.Close()
-
-    return resp.StatusCode == 200
+func (s *Service) CheckWebsite(ctx context.Context) bool {
+	return s.BaseService.CheckWebsite(ctx)
 }
 
-
-// GetUserInfo fetches user information using the authenticated session
-func (s *Service) GetUserInfo(username string) (*UserInfoResponse, error) {
-	if s.session == nil {
-		_, err := s.InitializeSession()
-		if err != nil {
-			return nil, err
+// getNestedMap safely traverses nested maps
+func getNestedMap(m map[string]interface{}, keys ...string) (map[string]interface{}, bool) {
+	curr := m
+	for _, key := range keys {
+		next, ok := curr[key].(map[string]interface{})
+		if !ok {
+			return nil, false
 		}
+		curr = next
+	}
+	return curr, true
+}
+
+// GetNextData fetches and parses __NEXT_DATA__ from a Snapchat user page.
+// This is the single source of truth — all other methods reuse it.
+func (s *Service) GetNextData(ctx context.Context, username string) ([]byte, error) {
+	session, err := s.EnsureSession()
+	if err != nil {
+		return nil, err
 	}
 
 	url := "https://www.snapchat.com/@" + username
 
-	// Perform request
-	resp, err := s.session.Get(url, nil)
+	resp, err := session.Get(ctx, url, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("GetUserInfo failed: %d", resp.StatusCode)
+		return nil, fmt.Errorf("GetNextData failed: %d", resp.StatusCode)
 	}
 
-	// Parse HTML
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	// Find __NEXT_DATA__
 	script := doc.Find("script#__NEXT_DATA__").First()
 	if script.Length() == 0 {
 		return nil, fmt.Errorf("__NEXT_DATA__ script not found")
@@ -178,7 +75,26 @@ func (s *Service) GetUserInfo(username string) (*UserInfoResponse, error) {
 		return nil, fmt.Errorf("__NEXT_DATA__ is empty")
 	}
 
-	// Decode only what we need
+	// Validate JSON and check pageMetadata exists
+	var raw map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonText), &raw); err != nil {
+		return nil, err
+	}
+
+	if _, ok := getNestedMap(raw, "props", "pageProps", "pageMetadata"); !ok {
+		return nil, fmt.Errorf("pageMetadata not found")
+	}
+
+	return []byte(jsonText), nil
+}
+
+// GetUserInfo fetches user information by reusing GetNextData
+func (s *Service) GetUserInfo(ctx context.Context, username string) (*UserInfoResponse, int, error) {
+	jsonBytes, err := s.GetNextData(ctx, username)
+	if err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+
 	var nextData struct {
 		Props struct {
 			PageProps struct {
@@ -187,10 +103,55 @@ func (s *Service) GetUserInfo(username string) (*UserInfoResponse, error) {
 		} `json:"props"`
 	}
 
-	if err := json.Unmarshal([]byte(jsonText), &nextData); err != nil {
-		return nil, err
+	if err := json.Unmarshal(jsonBytes, &nextData); err != nil {
+		return nil, http.StatusBadRequest, err
 	}
 
-	return &nextData.Props.PageProps.UserProfile, nil
+	return &nextData.Props.PageProps.UserProfile, http.StatusOK, nil
 }
 
+// GetCuratedHighlights fetches curated highlights by reusing GetNextData
+func (s *Service) GetCuratedHighlights(ctx context.Context, username string) ([]CuratedHighlight, int, error) {
+	jsonBytes, err := s.GetNextData(ctx, username)
+	if err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+
+	var nextData struct {
+		Props struct {
+			PageProps struct {
+				Highlights struct {
+					CuratedHighlights []CuratedHighlight `json:"curatedHighlights"`
+				}
+			} `json:"pageProps"`
+		} `json:"props"`
+	}
+
+	if err := json.Unmarshal(jsonBytes, &nextData); err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+
+	return nextData.Props.PageProps.Highlights.CuratedHighlights, http.StatusOK, nil
+}
+
+// GetSpotlightHighlights fetches spotlight highlights by reusing GetNextData
+func (s *Service) GetSpotlightHighlights(ctx context.Context, username string) ([]SpotlightHighlight, int, error) {
+	jsonBytes, err := s.GetNextData(ctx, username)
+	if err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+
+	var nextData struct {
+		Props struct {
+			PageProps struct {
+				SpotlightHighlights []SpotlightHighlight `json:"spotlightHighlights"`
+			} `json:"pageProps"`
+		} `json:"props"`
+	}
+
+	if err := json.Unmarshal(jsonBytes, &nextData); err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+
+	return nextData.Props.PageProps.SpotlightHighlights, http.StatusOK, nil
+}

@@ -1,0 +1,19 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+entrypoint = "tmp/app"
+cmd = "swag init -g cmd/api/main.go -o docs && go build -o tmp/app cmd/api/main.go"
+delay = 1000
+exclude_dir = ["tmp", "docs", "vendor", "k8s"]
+include_ext = ["go"]
+stop_on_error = true
+
+[log]
+time = true
+
+[color]
+main = "yellow"
+watcher = "cyan"
+build = "green"
+runner = "magenta"

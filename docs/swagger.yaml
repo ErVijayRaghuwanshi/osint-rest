@@ -1,5 +1,37 @@
-basePath: /
 definitions:
+  header.HeaderConfig:
+    properties:
+      platforms:
+        additionalProperties:
+          $ref: '#/definitions/header.PlatformConfig'
+        type: object
+      version:
+        type: string
+    type: object
+  header.HeaderEntry:
+    properties:
+      enabled:
+        type: boolean
+      headers:
+        additionalProperties:
+          type: string
+        type: object
+      id:
+        type: string
+    type: object
+  header.PlatformConfig:
+    properties:
+      cache_ttl_seconds:
+        type: integer
+      enabled:
+        type: boolean
+      headers:
+        items:
+          $ref: '#/definitions/header.HeaderEntry'
+        type: array
+      rotation:
+        type: string
+    type: object
   instagram.BioLink:
     properties:
       link_type:
@@ -20,6 +52,35 @@ definitions:
       raw_text:
         type: string
     type: object
+  instagram.EdgeConnection:
+    properties:
+      count:
+        type: integer
+      edges:
+        items: {}
+        type: array
+      page_info:
+        $ref: '#/definitions/instagram.PageInfo'
+    type: object
+  instagram.EdgeCount:
+    properties:
+      count:
+        type: integer
+    type: object
+  instagram.EdgeMutualFollowedBy:
+    properties:
+      count:
+        type: integer
+      edges:
+        items: {}
+        type: array
+    type: object
+  instagram.EdgeRelatedProfiles:
+    properties:
+      edges:
+        items: {}
+        type: array
+    type: object
   instagram.InstagramLocation:
     properties:
       address_json:
@@ -33,6 +94,19 @@ definitions:
       slug:
         type: string
       website:
+        type: string
+    type: object
+  instagram.PageInfo:
+    properties:
+      end_cursor:
+        type: string
+      has_next_page:
+        type: boolean
+    type: object
+  instagram.PingResponse:
+    properties:
+      message:
+        example: Pong
         type: string
     type: object
   instagram.UserInfo:
@@ -67,16 +141,23 @@ definitions:
         type: string
       country_block:
         type: boolean
+      edge_follow:
+        allOf:
+        - $ref: '#/definitions/instagram.EdgeCount'
+        description: EdgeFelixVideoTimeline     EdgeConnection        `json:"edge_felix_video_timeline"`
+      edge_followed_by:
+        $ref: '#/definitions/instagram.EdgeCount'
+      edge_media_collections:
+        $ref: '#/definitions/instagram.EdgeConnection'
+      edge_mutual_followed_by:
+        $ref: '#/definitions/instagram.EdgeMutualFollowedBy'
+      edge_related_profiles:
+        allOf:
+        - $ref: '#/definitions/instagram.EdgeRelatedProfiles'
+        description: EdgeOwnerToTimelineMedia   EdgeConnection        `json:"edge_owner_to_timeline_media"`
+      edge_saved_media:
+        $ref: '#/definitions/instagram.EdgeConnection'
       fb_page_calls_count:
-        description: |-
-          EdgeFelixVideoTimeline     EdgeConnection        `json:"edge_felix_video_timeline"`
-          EdgeFollow                 EdgeCount             `json:"edge_follow"`
-          EdgeFollowedBy             EdgeCount             `json:"edge_followed_by"`
-          EdgeMediaCollections       EdgeConnection        `json:"edge_media_collections"`
-          EdgeMutualFollowedBy       EdgeMutualFollowedBy  `json:"edge_mutual_followed_by"`
-          EdgeOwnerToTimelineMedia   EdgeConnection        `json:"edge_owner_to_timeline_media"`
-          EdgeRelatedProfiles        EdgeRelatedProfiles   `json:"edge_related_profiles"`
-          EdgeSavedMedia             EdgeConnection        `json:"edge_saved_media"`
         type: integer
       fb_page_email:
         type: string
@@ -168,10 +249,6 @@ definitions:
         type: string
       verification_data:
         $ref: '#/definitions/instagram.VerificationData'
-      watched_stories:
-        items:
-          type: string
-        type: array
     type: object
   instagram.UserInfoResponse:
     properties:
@@ -188,11 +265,1077 @@ definitions:
       verification_status:
         type: string
     type: object
+  jaco.Activity:
+    properties:
+      fail_desc:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: integer
+      type:
+        type: integer
+    type: object
+  jaco.AuthorInfo:
+    properties:
+      avatar_small:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      nickname:
+        type: string
+      username:
+        type: string
+    type: object
+  jaco.BadRequestError:
+    properties:
+      error:
+        example: username parameter is required
+        type: string
+    type: object
+  jaco.Badge:
+    properties:
+      code:
+        example: 4
+        type: integer
+      desc:
+        example: ""
+        type: string
+      grant_time:
+        example: "0"
+        type: string
+      name:
+        example: Supporter Level
+        type: string
+      type:
+        example: 0
+        type: integer
+    type: object
+  jaco.BadgeGallery:
+    properties:
+      badge_count:
+        example: 10
+        type: integer
+      badge_list:
+        items:
+          $ref: '#/definitions/jaco.GalleryBadge'
+        type: array
+    type: object
+  jaco.ChildCommentList:
+    properties:
+      count:
+        example: 0
+        type: integer
+      list:
+        items:
+          $ref: '#/definitions/jaco.Comment'
+        type: array
+      max_id:
+        example: "0"
+        type: string
+      max_id_type:
+        example: 0
+        type: integer
+      next_max_id:
+        example: -1
+        type: integer
+      next_since_id:
+        example: -1
+        type: integer
+      root_cmt_id:
+        example: "5180692040351744"
+        type: string
+      since_id:
+        example: "0"
+        type: string
+      total:
+        example: 0
+        type: integer
+    type: object
+  jaco.Comment:
+    properties:
+      child_comment_list:
+        $ref: '#/definitions/jaco.ChildCommentList'
+      cmt_id:
+        example: "5180692040351744"
+        type: string
+      counters:
+        $ref: '#/definitions/jaco.CommentCounters'
+      create_at:
+        example: "1750656698573"
+        type: string
+      is_author_comment:
+        example: false
+        type: boolean
+      is_author_liked:
+        example: false
+        type: boolean
+      is_liked:
+        example: false
+        type: boolean
+      is_pinned:
+        example: false
+        type: boolean
+      lat:
+        example: 0
+        type: number
+      lng:
+        example: 0
+        type: number
+      mention_uid_list:
+        items:
+          type: string
+        type: array
+      mflag:
+        example: "0"
+        type: string
+      parse_entity_list:
+        items: {}
+        type: array
+      reel_uid:
+        example: "3004008323"
+        type: string
+      reply_cmt_id:
+        example: "0"
+        type: string
+      reply_uid:
+        example: ""
+        type: string
+      rid:
+        example: "23194424305516544"
+        type: string
+      root_cmt_id:
+        example: "0"
+        type: string
+      root_uid:
+        example: "0"
+        type: string
+      text:
+        example: "قلبييييييييي هالجمال بسم الله عليك \U0001F97A\U0001F90D\U0001F90D\U0001F90D"
+        type: string
+      uid:
+        example: "3004631493"
+        type: string
+      user:
+        $ref: '#/definitions/jaco.CommentUser'
+      vflag:
+        example: "0"
+        type: string
+    type: object
+  jaco.CommentCounters:
+    properties:
+      comments_counter:
+        example: 0
+        type: integer
+      likes_counter:
+        example: 4
+        type: integer
+    type: object
+  jaco.CommentTreeData:
+    properties:
+      count:
+        example: 20
+        type: integer
+      list:
+        items:
+          $ref: '#/definitions/jaco.Comment'
+        type: array
+      max_id:
+        example: "0"
+        type: string
+      max_id_type:
+        example: 1
+        type: integer
+      next_max_id:
+        example: -1
+        type: integer
+      next_since_id:
+        example: 0
+        type: integer
+      root_cmt_id:
+        example: "0"
+        type: string
+      since_id:
+        example: "5191643520499712"
+        type: string
+      total:
+        example: 28
+        type: integer
+    type: object
+  jaco.CommentTreeResponse:
+    properties:
+      data:
+        $ref: '#/definitions/jaco.CommentTreeData'
+      error:
+        example: Success
+        type: string
+      error_code:
+        example: 10000
+        type: integer
+      request_id:
+        example: 82874cc5-8319-423f-8e6f-92e9c94598be
+        type: string
+    type: object
+  jaco.CommentUser:
+    properties:
+      avatar_hd:
+        example: https://img2.jacocdn.com/orj1080/b31709c5la1hswjkcqlofj20n00gmjsz.jpg
+        type: string
+      avatar_small:
+        example: https://img2.jacocdn.com/orj360/b31709c5la1hswjkcqlofj20n00gmjsz.jpg
+        type: string
+      badge_list:
+        items:
+          $ref: '#/definitions/jaco.Badge'
+        type: array
+      description:
+        example: ""
+        type: string
+      follow_me:
+        example: false
+        type: boolean
+      follower_count:
+        example: 0
+        type: integer
+      following:
+        example: false
+        type: boolean
+      following_count:
+        example: 0
+        type: integer
+      friend_count:
+        example: 0
+        type: integer
+      icon:
+        example: https://img2.jacocdn.com/orj1080/b31709c5la1hswjkcqlofj20n00gmjsz.jpg
+        type: string
+      id:
+        example: "3004631493"
+        type: string
+      level:
+        example: 5
+        type: integer
+      nickname:
+        example: "أمال \U0001F90D"
+        type: string
+      special_reminder:
+        example: 0
+        type: integer
+      tag_list:
+        items:
+          type: string
+        type: array
+      user_type:
+        example: 1
+        type: integer
+      username:
+        example: jaco_er56cd
+        type: string
+      verified_type:
+        example: 0
+        type: integer
+    type: object
+  jaco.Content:
+    properties:
+      share_link:
+        type: string
+      video_info:
+        $ref: '#/definitions/jaco.VideoInfo'
+    type: object
+  jaco.CountInfo:
+    properties:
+      follower_count:
+        example: 32.8K
+        type: string
+      following_count:
+        example: "1155"
+        type: string
+    type: object
+  jaco.Counters:
+    properties:
+      comments_counter:
+        type: integer
+      favorite_counter:
+        type: integer
+      gold_counter:
+        type: integer
+      likes_counter:
+        type: integer
+      share_counter:
+        type: integer
+      video_play_counter:
+        type: integer
+    type: object
+  jaco.CoverImage:
+    properties:
+      height:
+        type: string
+      pid:
+        type: string
+      src:
+        type: integer
+      url_template:
+        type: string
+      urls:
+        additionalProperties:
+          type: string
+        type: object
+      width:
+        type: string
+    type: object
+  jaco.Extra:
+    properties:
+      spl_active:
+        example: false
+        type: boolean
+    type: object
+  jaco.Features:
+    properties:
+      is_official:
+        type: boolean
+      is_ugc:
+        type: boolean
+    type: object
+  jaco.GalleryBadge:
+    properties:
+      badge_image:
+        example: https://img.jacocdn.com/large/example.jpg
+        type: string
+      badge_name:
+        example: Creator
+        type: string
+      badge_name_ar:
+        example: صانع المحتوى
+        type: string
+      badge_name_en:
+        example: Creator
+        type: string
+      id:
+        example: "5"
+        type: string
+      scheme:
+        example: jaco://discover/receivedRanking?...
+        type: string
+      series_type:
+        example: 3
+        type: integer
+      type:
+        example: "0"
+        type: string
+    type: object
+  jaco.ImmersionProperty:
+    properties:
+      extend:
+        type: string
+      immersion_url:
+        type: string
+      refresh_url:
+        type: string
+    type: object
+  jaco.InternalServerError:
+    properties:
+      error:
+        example: internal server error
+        type: string
+    type: object
+  jaco.ListItem:
+    properties:
+      content:
+        $ref: '#/definitions/jaco.Content'
+      id:
+        type: string
+      report_data:
+        type: string
+      type:
+        type: integer
+      uid:
+        type: string
+    type: object
+  jaco.Location:
+    properties:
+      city:
+        type: string
+    type: object
+  jaco.Media:
+    properties:
+      play_info:
+        $ref: '#/definitions/jaco.PlayInfo'
+    type: object
+  jaco.MediaDetail:
+    properties:
+      duration:
+        type: number
+      first_frame_cover_url:
+        type: string
+      height:
+        type: integer
+      post_roll_duration:
+        type: number
+      post_roll_url:
+        type: string
+      quality_desc:
+        type: string
+      quality_index:
+        type: integer
+      size:
+        type: integer
+      url:
+        type: string
+      video_codec:
+        type: string
+      width:
+        type: integer
+    type: object
+  jaco.MusicControl:
+    properties:
+      is_use:
+        type: boolean
+      mute_change_name:
+        type: boolean
+      mute_share:
+        type: boolean
+      prevent_download:
+        type: boolean
+    type: object
+  jaco.MusicInfo:
+    properties:
+      ai_flag:
+        type: integer
+      album_name:
+        type: string
+      album_name_ar:
+        type: string
+      author_name:
+        type: string
+      author_name_ar:
+        type: string
+      author_uid:
+        type: string
+      language_type:
+        type: integer
+      music_desc:
+        type: string
+      music_desc_ar:
+        type: string
+      music_name:
+        type: string
+      music_name_ar:
+        type: string
+    type: object
+  jaco.MusicViewModel:
+    properties:
+      '@type':
+        type: string
+      author_info:
+        $ref: '#/definitions/jaco.AuthorInfo'
+      cover_image:
+        $ref: '#/definitions/jaco.CoverImage'
+      create_time:
+        type: string
+      features:
+        $ref: '#/definitions/jaco.Features'
+      mid:
+        type: string
+      music_control:
+        $ref: '#/definitions/jaco.MusicControl'
+      music_info:
+        $ref: '#/definitions/jaco.MusicInfo'
+      offset_x:
+        type: integer
+      offset_y:
+        type: integer
+      state:
+        type: integer
+    type: object
+  jaco.NotFoundError:
+    properties:
+      error:
+        example: user not found
+        type: string
+    type: object
+  jaco.Object:
+    properties:
+      '@type':
+        type: string
+      content:
+        $ref: '#/definitions/jaco.MusicViewModel'
+    type: object
+  jaco.ObjectIndex:
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+    type: object
+  jaco.PingResponse:
+    properties:
+      message:
+        example: Pong
+        type: string
+    type: object
+  jaco.PlayInfo:
+    properties:
+      default_codec:
+        type: string
+      default_quality:
+        type: integer
+      details:
+        items:
+          $ref: '#/definitions/jaco.MediaDetail'
+        type: array
+    type: object
+  jaco.Properties:
+    properties:
+      is_new:
+        type: boolean
+      pin:
+        type: boolean
+    type: object
+  jaco.RankObject:
+    properties:
+      topRank:
+        items: {}
+        type: array
+      total:
+        type: integer
+    type: object
+  jaco.RemixCodec:
+    properties:
+      remix_default_codec:
+        type: string
+      remix_default_quality:
+        type: integer
+    type: object
+  jaco.Settings:
+    properties:
+      co_creation_able:
+        type: boolean
+      download_able:
+        type: boolean
+      extract_sound_able:
+        type: boolean
+      full_screen_able:
+        type: boolean
+      play_sound:
+        type: boolean
+      quote_sound_able:
+        type: boolean
+      reward_able:
+        type: boolean
+    type: object
+  jaco.ShowTab:
+    properties:
+      show_video_favorite:
+        example: 0
+        type: integer
+      show_video_liked:
+        example: 0
+        type: integer
+    type: object
+  jaco.Transcribe:
+    properties:
+      lid:
+        type: string
+      mid:
+        type: string
+      uid:
+        type: string
+    type: object
+  jaco.User:
+    properties:
+      administrator_type:
+        example: 0
+        type: integer
+      auth_bit:
+        example: "0"
+        type: string
+      avatar_hd:
+        example: https://img2.jacocdn.com/orj1080/b3158285la1i906ie78z1j20yi0yidj2.jpg
+        type: string
+      avatar_hd_pid:
+        example: b3158285la1i906ie78z1j20yi0yidj2
+        type: string
+      avatar_large:
+        example: https://img2.jacocdn.com/large/b3158285la1i906ie78z1j20yi0yidj2.jpg
+        type: string
+      avatar_small:
+        example: https://img2.jacocdn.com/orj360/b3158285la1i906ie78z1j20yi0yidj2.jpg
+        type: string
+      avatar_webp180:
+        example: ""
+        type: string
+      avatar_webp360:
+        example: ""
+        type: string
+      avatar_webp480:
+        example: ""
+        type: string
+      avatar_webp960:
+        example: ""
+        type: string
+      badge_list:
+        items:
+          $ref: '#/definitions/jaco.Badge'
+        type: array
+      birthday:
+        example: ""
+        type: string
+      black_me:
+        example: false
+        type: boolean
+      city:
+        example: ""
+        type: string
+      country:
+        example: ""
+        type: string
+      cover_hd:
+        example:
+        - https://img2.jacocdn.com/orj1080/b3158285la1i906ie78z1j20yi0yidj2.jpg
+        items:
+          type: string
+        type: array
+      cover_pid:
+        example: b3158285la1i906ie78z1j20yi0yidj2_p,,,,
+        type: string
+      created_at:
+        example: "1691843311000"
+        type: string
+      description:
+        example: ""
+        type: string
+      follow_me:
+        example: false
+        type: boolean
+      follower_count:
+        example: 32827
+        type: integer
+      following:
+        example: false
+        type: boolean
+      following_count:
+        example: 1155
+        type: integer
+      friend_count:
+        example: 1068
+        type: integer
+      gender:
+        example: 2
+        type: integer
+      id:
+        example: "3004531333"
+        type: string
+      in_black:
+        example: false
+        type: boolean
+      invitation_code:
+        example: ""
+        type: string
+      language:
+        example: 0
+        type: integer
+      last_day_followers:
+        example: "0"
+        type: string
+      level:
+        example: 32
+        type: integer
+      muted_count:
+        example: 1
+        type: integer
+      muted_end_time:
+        example: "1698162140608"
+        type: string
+      muted_start_time:
+        example: "1698075740608"
+        type: string
+      nickname:
+        example: شمسة
+        type: string
+      privacy:
+        example: "345"
+        type: string
+      province:
+        example: ""
+        type: string
+      reg_ip:
+        example: ""
+        type: string
+      reg_source:
+        example: "0"
+        type: string
+      region:
+        example: "0"
+        type: string
+      special_reminder:
+        example: 0
+        type: integer
+      statuses_count:
+        example: 0
+        type: integer
+      sub_type:
+        example: 0
+        type: integer
+      tag_list:
+        items:
+          type: string
+        type: array
+      update_time:
+        example: "1767800276000"
+        type: string
+      user_mark:
+        example: "0"
+        type: string
+      user_status:
+        example: 1
+        type: integer
+      user_type:
+        example: 1
+        type: integer
+      username:
+        example: Uaegirl
+        type: string
+      verified_code:
+        example: 0
+        type: integer
+      verified_info:
+        example: ""
+        type: string
+      verified_type:
+        example: 0
+        type: integer
+      vip_info:
+        items: {}
+        type: array
+    type: object
+  jaco.UserBusiness:
+    properties:
+      age:
+        example: "-1"
+        type: string
+      country:
+        example: ""
+        type: string
+      power_sign:
+        example: wqHqfYQv...
+        type: string
+      website_list:
+        items: {}
+        type: array
+    type: object
+  jaco.UserInfoData:
+    properties:
+      badge_gallery:
+        $ref: '#/definitions/jaco.BadgeGallery'
+      count_info:
+        $ref: '#/definitions/jaco.CountInfo'
+      extra:
+        $ref: '#/definitions/jaco.Extra'
+      show_tab:
+        $ref: '#/definitions/jaco.ShowTab'
+      user:
+        $ref: '#/definitions/jaco.User'
+      user_business_info:
+        $ref: '#/definitions/jaco.UserBusiness'
+      user_info_status:
+        example: 0
+        type: integer
+      user_meta:
+        $ref: '#/definitions/jaco.UserMeta'
+    type: object
+  jaco.UserInfoResponse:
+    properties:
+      data:
+        $ref: '#/definitions/jaco.UserInfoData'
+      error:
+        example: Success
+        type: string
+      error_code:
+        example: 10000
+        type: integer
+      request_id:
+        example: 01f1ee42-a913-4ad2-832e-95e6fb6c8dec
+        type: string
+    type: object
+  jaco.UserMeta:
+    properties:
+      keywords_ar:
+        example: صانع محتوى للبث المباشر
+        type: string
+      keywords_en:
+        example: live streaming content creator
+        type: string
+      meta_description_ar:
+        example: عش تجربة بث مباشر
+        type: string
+      meta_description_en:
+        example: Join Uaegirl's captivating streams
+        type: string
+      meta_title_ar:
+        example: بث Uaegirl بجاكو
+        type: string
+      meta_title_en:
+        example: 'Uaegirl Live: Stream Fun'
+        type: string
+      uid:
+        example: "3004531333"
+        type: string
+    type: object
+  jaco.UserReelData:
+    properties:
+      category:
+        type: integer
+      immersion_experiment:
+        type: integer
+      immersion_property:
+        $ref: '#/definitions/jaco.ImmersionProperty'
+      immersion_type:
+        type: integer
+      just_watch_switch:
+        type: integer
+      last_video_play_counter:
+        type: integer
+      list:
+        items:
+          $ref: '#/definitions/jaco.ListItem'
+        type: array
+    type: object
+  jaco.UserReelResponse:
+    properties:
+      data:
+        $ref: '#/definitions/jaco.UserReelData'
+      error:
+        example: Success
+        type: string
+      error_code:
+        example: 10000
+        type: integer
+      request_id:
+        example: 01f1ee42-a913-4ad2-832e-95e6fb6c8dec
+        type: string
+    type: object
+  jaco.VideoInfo:
+    properties:
+      activity:
+        $ref: '#/definitions/jaco.Activity'
+      cflag:
+        type: string
+      co_creation_able:
+        type: boolean
+      counters:
+        $ref: '#/definitions/jaco.Counters'
+      cover_image:
+        $ref: '#/definitions/jaco.CoverImage'
+      create_at:
+        type: string
+      is_favorite:
+        type: boolean
+      is_liked:
+        type: boolean
+      location:
+        $ref: '#/definitions/jaco.Location'
+      media:
+        $ref: '#/definitions/jaco.Media'
+      media_type:
+        type: integer
+      music_first_post:
+        type: boolean
+      object_index:
+        items:
+          $ref: '#/definitions/jaco.ObjectIndex'
+        type: array
+      objects:
+        additionalProperties:
+          $ref: '#/definitions/jaco.Object'
+        type: object
+      properties:
+        $ref: '#/definitions/jaco.Properties'
+      rankObject:
+        $ref: '#/definitions/jaco.RankObject'
+      remix_codec:
+        $ref: '#/definitions/jaco.RemixCodec'
+      remix_rid:
+        type: string
+      review_state:
+        type: integer
+      review_type:
+        type: integer
+      rid:
+        type: string
+      settings:
+        $ref: '#/definitions/jaco.Settings'
+      state:
+        type: string
+      text:
+        type: string
+      transcribe:
+        $ref: '#/definitions/jaco.Transcribe'
+      uid:
+        type: string
+      vflag:
+        type: string
+      video_type:
+        type: integer
+    type: object
+  snapchat.BoolValue:
+    properties:
+      value:
+        type: boolean
+    type: object
+  snapchat.CuratedHighlight:
+    properties:
+      canonicalUrlSuffix:
+        type: string
+      emoji:
+        type: string
+      highlightId:
+        $ref: '#/definitions/snapchat.StringValue'
+      isAttributed:
+        $ref: '#/definitions/snapchat.BoolValue'
+      snapList:
+        items:
+          $ref: '#/definitions/snapchat.CuratedSnap'
+        type: array
+      storySubtitle:
+        type: string
+      storyTapId:
+        type: string
+      storyTitle:
+        type: string
+      storyType:
+        type: integer
+      thumbnailUrl:
+        $ref: '#/definitions/snapchat.StringValue'
+      videoTrackUrl:
+        type: string
+    type: object
+  snapchat.CuratedHighlightsResponse:
+    properties:
+      highlights:
+        items:
+          $ref: '#/definitions/snapchat.CuratedHighlight'
+        type: array
+    type: object
+  snapchat.CuratedSnap:
+    properties:
+      audioTranscriptionObjectUrl:
+        type: string
+      hasAttachment:
+        type: boolean
+      intervalStartTimeMs:
+        type: integer
+      isSponsored:
+        type: boolean
+      lat:
+        type: number
+      lng:
+        type: number
+      snapId:
+        $ref: '#/definitions/snapchat.StringValue'
+      snapIndex:
+        type: integer
+      snapMediaType:
+        type: integer
+      snapSubtitles:
+        type: string
+      snapTitle:
+        type: string
+      snapUrls:
+        $ref: '#/definitions/snapchat.SnapURLs'
+      timestampInSec:
+        $ref: '#/definitions/snapchat.StringValue'
+    type: object
+  snapchat.PingResponse:
+    properties:
+      message:
+        example: Pong
+        type: string
+    type: object
   snapchat.RelatedAccountInfo:
     properties:
       publicProfileInfo: {}
       subscribeLink:
         $ref: '#/definitions/snapchat.SubscribeLink'
+    type: object
+  snapchat.SnapURLs:
+    properties:
+      attachmentUrl:
+        type: string
+      mediaPreviewUrl:
+        $ref: '#/definitions/snapchat.StringValue'
+      mediaUrl:
+        type: string
+      overlayUrl:
+        type: string
+    type: object
+  snapchat.SpotlightHighlight:
+    properties:
+      canonicalUrlSuffix:
+        type: string
+      emoji:
+        type: string
+      highlightId:
+        type: string
+      isAttributed:
+        $ref: '#/definitions/snapchat.BoolValue'
+      snapList:
+        items:
+          $ref: '#/definitions/snapchat.SpotlightSnap'
+        type: array
+      storyId:
+        $ref: '#/definitions/snapchat.StringValue'
+      storyShareId:
+        type: string
+      storySubtitle:
+        type: string
+      storyTapId:
+        type: string
+      storyTitle:
+        type: string
+      storyType:
+        type: integer
+      thumbnailUrl:
+        $ref: '#/definitions/snapchat.StringValue'
+      videoTrackUrl:
+        type: string
+    type: object
+  snapchat.SpotlightSnap:
+    properties:
+      audioTranscriptionObjectUrl:
+        type: string
+      hasAttachment:
+        type: boolean
+      intervalStartTimeMs:
+        type: integer
+      isSponsored:
+        type: boolean
+      lat:
+        type: number
+      lng:
+        type: number
+      snapId:
+        $ref: '#/definitions/snapchat.StringValue'
+      snapIndex:
+        type: integer
+      snapMediaType:
+        type: integer
+      snapSubtitles:
+        type: string
+      snapTitle:
+        type: string
+      snapUrls:
+        $ref: '#/definitions/snapchat.SnapURLs'
+      timestampInSec:
+        $ref: '#/definitions/snapchat.StringValue'
+    type: object
+  snapchat.StringValue:
+    properties:
+      value:
+        type: string
     type: object
   snapchat.SubscribeLink:
     properties:
@@ -288,42 +1431,311 @@ definitions:
       publicProfileInfo:
         $ref: '#/definitions/snapchat.UserInfo'
     type: object
-  x.UserInfo:
+  x.PingResponse:
+    properties:
+      message:
+        example: Pong
+        type: string
+    type: object
+  x.Privacy:
+    properties:
+      protected:
+        type: boolean
+    type: object
+  x.UserAvatar:
+    properties:
+      image_url:
+        type: string
+    type: object
+  x.UserCore:
     properties:
       created_at:
         type: string
+      name:
+        example: Mahesh Babu
+        type: string
+      screen_name:
+        type: string
+    type: object
+  x.UserInfoResponse:
+    properties:
+      data:
+        properties:
+          user:
+            properties:
+              result:
+                $ref: '#/definitions/x.UserResult'
+            type: object
+        type: object
+    type: object
+  x.UserLegacy:
+    properties:
+      default_profile:
+        type: boolean
+      default_profile_image:
+        type: boolean
       description:
         type: string
+      favourites_count:
+        type: integer
       followers_count:
         type: integer
-      following_count:
+      friends_count:
         type: integer
-      id:
-        type: string
-      is_verified:
+      media_count:
+        type: integer
+      possibly_sensitive:
         type: boolean
-      location:
-        type: string
-      name:
+      profile_banner_url:
         type: string
       profile_image_url:
         type: string
-      protected:
-        type: boolean
-      screen_name:
-        type: string
-      tweets_count:
+      statuses_count:
         type: integer
       url:
         type: string
+      verified:
+        type: boolean
     type: object
-host: localhost:8080
+  x.UserLocation:
+    properties:
+      location:
+        type: string
+    type: object
+  x.UserResult:
+    properties:
+      __typename:
+        type: string
+      avatar:
+        $ref: '#/definitions/x.UserAvatar'
+      core:
+        $ref: '#/definitions/x.UserCore'
+      id:
+        type: string
+      is_blue_verified:
+        type: boolean
+      legacy:
+        $ref: '#/definitions/x.UserLegacy'
+      location:
+        $ref: '#/definitions/x.UserLocation'
+      privacy:
+        $ref: '#/definitions/x.Privacy'
+      rest_id:
+        type: string
+      verification:
+        $ref: '#/definitions/x.Verification'
+      verification_info:
+        $ref: '#/definitions/x.VerificationInfo'
+    type: object
+  x.Verification:
+    properties:
+      verified:
+        type: boolean
+    type: object
+  x.VerificationInfo:
+    properties:
+      is_identity_verified:
+        type: boolean
+      verified_since_msec:
+        type: string
+    type: object
 info:
   contact: {}
-  description: High-performance OSINT scraping microservice.
-  title: OSINT Scraper API
-  version: "1.0"
 paths:
+  /admin/headers:
+    get:
+      description: Returns the full header configuration for all platforms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/header.HeaderConfig'
+      security:
+      - ApiKeyAuth: []
+      summary: List all platforms and their header sets
+      tags:
+      - Admin
+  /admin/headers/{platform}:
+    get:
+      description: Returns the header configuration for a single platform
+      parameters:
+      - description: Platform name (e.g. instagram, snapchat, x, jaco)
+        in: path
+        name: platform
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/header.PlatformConfig'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get headers for a specific platform
+      tags:
+      - Admin
+    post:
+      consumes:
+      - application/json
+      description: Appends a new header entry to the platform's header list
+      parameters:
+      - description: Platform name
+        in: path
+        name: platform
+        required: true
+        type: string
+      - description: Header entry to add
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/header.HeaderEntry'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/header.HeaderEntry'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Add a new header set to a platform
+      tags:
+      - Admin
+  /admin/headers/{platform}/{id}:
+    delete:
+      description: Removes a header entry by ID from a platform
+      parameters:
+      - description: Platform name
+        in: path
+        name: platform
+        required: true
+        type: string
+      - description: Header set ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a header set
+      tags:
+      - Admin
+    put:
+      consumes:
+      - application/json
+      description: Replaces the headers for a specific header entry by ID
+      parameters:
+      - description: Platform name
+        in: path
+        name: platform
+        required: true
+        type: string
+      - description: Header set ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated header entry
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/header.HeaderEntry'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/header.HeaderEntry'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Update an existing header set
+      tags:
+      - Admin
+  /admin/headers/{platform}/{id}/toggle:
+    post:
+      description: Enables or disables a specific header entry
+      parameters:
+      - description: Platform name
+        in: path
+        name: platform
+        required: true
+        type: string
+      - description: Header set ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Toggle a header set enabled/disabled
+      tags:
+      - Admin
   /api/instagram/hashtags:
     get:
       description: Searches for Instagram hashtags based on a query string
@@ -365,15 +1777,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
-        "503":
-          description: Service Unavailable
-          schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/instagram.PingResponse'
       summary: Check Instagram availability
       tags:
       - Instagram
@@ -439,6 +1843,153 @@ paths:
       summary: Get Instagram user information
       tags:
       - Instagram
+  /api/jaco/comments:
+    get:
+      description: Fetch top-level comments for a Jaco reel
+      parameters:
+      - description: Reel ID (default 23194424305516544)
+        in: query
+        name: rid
+        required: true
+        type: string
+      - description: Max comments (default 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Pagination cursor
+        in: query
+        name: base_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jaco.CommentTreeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/jaco.BadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/jaco.InternalServerError'
+      summary: Get reel comments
+      tags:
+      - Jaco
+  /api/jaco/ping:
+    get:
+      description: Pings jaco.live to ensure site is reachable
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jaco.PingResponse'
+      summary: Check Jaco availability
+      tags:
+      - Jaco
+  /api/jaco/reel:
+    get:
+      description: Fetches user reel (short videos) by username
+      parameters:
+      - description: 'Jaco username (default: Amal16600)'
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: 'Number of reels to fetch (default: 12)'
+        in: query
+        name: limit
+        type: integer
+      - description: Pagination cursor
+        in: query
+        name: next_since_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jaco.UserReelResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/jaco.BadRequestError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/jaco.NotFoundError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/jaco.InternalServerError'
+      summary: Get Jaco user reel
+      tags:
+      - Jaco
+  /api/jaco/userinfo:
+    get:
+      description: Fetches user information from jaco by username
+      parameters:
+      - description: 'Jaco username (default: Uaegirl)'
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/jaco.UserInfoResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/jaco.BadRequestError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/jaco.NotFoundError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/jaco.InternalServerError'
+      summary: Get Jaco user information
+      tags:
+      - Jaco
+  /api/snapchat/curatedhighlights:
+    get:
+      description: Fetches curated highlights for a given Snapchat username
+      parameters:
+      - description: 'Snapchat username (default: arora_girl)'
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/snapchat.CuratedHighlightsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Snapchat user curated highlights
+      tags:
+      - Snapchat
   /api/snapchat/ping:
     get:
       description: Pings snapchat.com to ensure site is reachable
@@ -448,16 +1999,40 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
-        "503":
-          description: Service Unavailable
+            $ref: '#/definitions/snapchat.PingResponse'
+      summary: Check Snapchat availability
+      tags:
+      - Snapchat
+  /api/snapchat/spotlighthighlights:
+    get:
+      description: Fetches spotlight highlights for a given Snapchat username
+      parameters:
+      - description: 'Snapchat username (default : arora_girl)'
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/snapchat.SpotlightHighlight'
+            type: array
+        "400":
+          description: Bad Request
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Check Snapchat availability
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Snapchat user spotlight highlights
       tags:
       - Snapchat
   /api/snapchat/userinfo:
@@ -499,15 +2074,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
-        "503":
-          description: Service Unavailable
-          schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/x.PingResponse'
       summary: Check X availability
       tags:
       - X
@@ -515,7 +2082,7 @@ paths:
     get:
       description: Fetches user information from X by screen name
       parameters:
-      - description: X screen name
+      - description: 'X screen name (default: urstrulymahesh)'
         in: query
         name: screen_name
         type: string
@@ -525,7 +2092,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/x.UserInfo'
+            $ref: '#/definitions/x.UserInfoResponse'
         "400":
           description: Bad Request
           schema:
@@ -549,17 +2116,21 @@ paths:
       - X
   /health:
     get:
-      description: Returns OK if service is running
+      description: Returns the health status of the API including runtime info
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
-      summary: Check service health
+      summary: Health check
       tags:
       - Health
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: X-API-Key
+    type: apiKey
 swagger: "2.0"

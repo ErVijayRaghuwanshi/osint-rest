@@ -1,51 +1,91 @@
 package api
 
 import (
-    "github.com/gin-gonic/gin"
-    swaggerFiles "github.com/swaggo/files"
-    ginSwagger "github.com/swaggo/gin-swagger"
-    "osint-scraper/internal/api/snapchat"
-    "osint-scraper/internal/api/instagram"
-    "osint-scraper/internal/api/x"
-    "osint-scraper/internal/config"
-    "osint-scraper/internal/logger"
+	"time"
+
+	"osint-scraper/internal/api/admin"
+	"osint-scraper/internal/api/instagram"
+	"osint-scraper/internal/api/jaco"
+	"osint-scraper/internal/api/middleware"
+	"osint-scraper/internal/api/snapchat"
+	"osint-scraper/internal/api/x"
+	"osint-scraper/internal/cache"
+	"osint-scraper/internal/config"
+	"osint-scraper/internal/header"
+	"osint-scraper/internal/logger"
+
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func NewRouter(cfg config.Config, log logger.Logger) *gin.Engine {
-    r := gin.Default()
+func NewRouter(cfg config.Config, log logger.Logger, hm *header.Manager, appCache cache.Cache, ht *header.HealthTracker, headerFilePath string) *gin.Engine {
+	r := gin.Default()
 
-    // Swagger endpoint
-    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// CORS
+	r.Use(middleware.CORS())
 
-    h := NewHandlers()
-    r.GET("/health", h.HealthCheck)
+	// Rate limiter: 60 req/sec per IP, burst 100
+	limiter := middleware.NewRateLimiter(60, 100, time.Second)
+	r.Use(limiter.Middleware())
 
-    // -------------------------------
-    // Snapchat Route Group
-    // -------------------------------
-    snapService := snapchat.NewService()
-    snapGroup := r.Group("/api/snapchat") // <--- full prefix
-    {
-        snapchat.RegisterRoutes(snapGroup, snapService)
-    }
+	// Swagger endpoint
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-    // -------------------------------
-    // Instagram Route Group
-    // -------------------------------
-    instaService := instagram.NewService()
-    instaGroup := r.Group("/api/instagram") // <--- full prefix
-    {
-        instagram.RegisterRoutes(instaGroup, instaService)
-    }
+	h := NewHandlers()
+	r.GET("/health", h.HealthCheck)
 
-    // -------------------------------
-    // X Route Group
-    // -------------------------------
-    xService := x.NewService()
-    xGroup := r.Group("/api/x") // <--- full prefix
-    {
-        x.RegisterRoutes(xGroup, xService)
-    }
+	// -------------------------------
+	// Snapchat Route Group
+	// -------------------------------
+	snapService := snapchat.NewService(hm, log)
+	snapService.SetCache(appCache)
+	snapService.SetHealthTracker(ht)
+	snapGroup := r.Group("/api/snapchat")
+	{
+		snapchat.RegisterRoutes(snapGroup, snapService, log)
+	}
 
-    return r
+	// -------------------------------
+	// Instagram Route Group
+	// -------------------------------
+	instaService := instagram.NewService(hm, log)
+	instaService.SetCache(appCache)
+	instaService.SetHealthTracker(ht)
+	instaGroup := r.Group("/api/instagram")
+	{
+		instagram.RegisterRoutes(instaGroup, instaService, log)
+	}
+
+	// -------------------------------
+	// X Route Group
+	// -------------------------------
+	xService := x.NewService(hm, log)
+	xService.SetCache(appCache)
+	xService.SetHealthTracker(ht)
+	xGroup := r.Group("/api/x")
+	{
+		x.RegisterRoutes(xGroup, xService, log)
+	}
+
+	// -------------------------------
+	// Jaco Route Group
+	// -------------------------------
+	jacoService := jaco.NewService(hm, log)
+	jacoService.SetCache(appCache)
+	jacoService.SetHealthTracker(ht)
+	jacoGroup := r.Group("/api/jaco")
+	{
+		jaco.RegisterRoutes(jacoGroup, jacoService, log)
+	}
+
+	// -------------------------------
+	// Admin Route Group (API key protected)
+	// -------------------------------
+	adminGroup := r.Group("/admin/headers", middleware.AdminAPIKey())
+	{
+		admin.RegisterRoutes(adminGroup, hm, log, headerFilePath)
+	}
+
+	return r
 }
