@@ -57,13 +57,20 @@ func (b *BaseService) CacheTTL() time.Duration {
 	return time.Duration(secs) * time.Second
 }
 
+// CacheResult wraps a cached response with metadata about whether it was
+// served from cache, so handlers can set response headers like X-Cache.
+type CacheResult struct {
+	Data     []byte
+	CacheHit bool
+}
+
 // CachedGet checks the cache for key, and if missing, calls fetch(),
-// stores the result, and returns it.
-func (b *BaseService) CachedGet(key string, fetch func() ([]byte, error)) ([]byte, error) {
+// stores the result, and returns a CacheResult indicating hit/miss.
+func (b *BaseService) CachedGet(key string, fetch func() ([]byte, error)) (*CacheResult, error) {
 	if b.Cache != nil {
 		if data, ok := b.Cache.Get(key); ok {
 			b.Log.Debug().Str("key", key).Msg("Cache hit")
-			return data, nil
+			return &CacheResult{Data: data, CacheHit: true}, nil
 		}
 	}
 
@@ -77,7 +84,7 @@ func (b *BaseService) CachedGet(key string, fetch func() ([]byte, error)) ([]byt
 		b.Log.Debug().Str("key", key).Dur("ttl", b.CacheTTL()).Msg("Cache set")
 	}
 
-	return data, nil
+	return &CacheResult{Data: data, CacheHit: false}, nil
 }
 
 // InitializeSession creates a new Session and loads headers from the manager.

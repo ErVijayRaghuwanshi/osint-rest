@@ -819,6 +819,73 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/telegram/ping": {
+            "get": {
+                "description": "Pings telegram to ensure site is reachable",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Check Telegram availability",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/telegram.PingResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/telegram/userinfo": {
+            "get": {
+                "description": "Fetches detailed user information for a given Telegram username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Telegram"
+                ],
+                "summary": "Get Telegram user information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Telegram username",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/telegram.UserInfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/x/ping": {
             "get": {
                 "description": "Pings x.com to ensure site is reachable",
@@ -3028,6 +3095,18 @@ const docTemplate = `{
                     "$ref": "#/definitions/snapchat.UserInfo"
                 }
             }
+        },
+        "telegram.PingResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Pong"
+                }
+            }
+        },
+        "telegram.UserInfoResponse": {
+            "type": "object"
         },
         "x.PingResponse": {
             "type": "object",

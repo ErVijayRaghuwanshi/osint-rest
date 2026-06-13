@@ -1,5 +1,16 @@
 package common
 
+import "github.com/gin-gonic/gin"
+
+// SetCacheHeader sets the X-Cache response header to HIT or MISS.
+func SetCacheHeader(c *gin.Context, hit bool) {
+	if hit {
+		c.Header("X-Cache", "HIT")
+	} else {
+		c.Header("X-Cache", "MISS")
+	}
+}
+
 // PingResponse is the standard response for platform ping endpoints.
 type PingResponse struct {
 	Message string `json:"message" example:"Pong"`

@@ -27,6 +27,7 @@ help:
 	@echo "  k8s-apply      - Apply Kubernetes manifests"
 	@echo "  k8s-delete     - Delete Kubernetes resources"
 	@echo "  clean          - Clean build artifacts"
+	@echo "  new-platform   - Scaffold a new platform (usage: make new-platform name=<name>)"
 	@echo "  all            - deps + tidy + swagger + build"
 
 # -------------------------------------------------
@@ -113,5 +114,17 @@ k8s-delete:
 clean:
 	rm -rf $(BIN_DIR)
 	rm -rf $(SWAG_DIR)
+
+# -------------------------------------------------
+# Scaffold
+# -------------------------------------------------
+
+new-platform:
+	@if [ -z "$(name)" ]; then \
+		echo "Usage: make new-platform name=<platform_name>"; \
+		echo "  Example: make new-platform name=telegram"; \
+		exit 1; \
+	fi
+	@bash scripts/scaffold-platform.sh $(name)
 
 all: deps tidy swagger build

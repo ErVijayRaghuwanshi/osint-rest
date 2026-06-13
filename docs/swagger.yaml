@@ -1431,6 +1431,14 @@ definitions:
       publicProfileInfo:
         $ref: '#/definitions/snapchat.UserInfo'
     type: object
+  telegram.PingResponse:
+    properties:
+      message:
+        example: Pong
+        type: string
+    type: object
+  telegram.UserInfoResponse:
+    type: object
   x.PingResponse:
     properties:
       message:
@@ -2065,6 +2073,50 @@ paths:
       summary: Get Snapchat user information
       tags:
       - Snapchat
+  /api/telegram/ping:
+    get:
+      description: Pings telegram to ensure site is reachable
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/telegram.PingResponse'
+      summary: Check Telegram availability
+      tags:
+      - Telegram
+  /api/telegram/userinfo:
+    get:
+      description: Fetches detailed user information for a given Telegram username
+      parameters:
+      - description: Telegram username
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/telegram.UserInfoResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Telegram user information
+      tags:
+      - Telegram
   /api/x/ping:
     get:
       description: Pings x.com to ensure site is reachable

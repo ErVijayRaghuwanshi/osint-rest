@@ -3,6 +3,7 @@ package instagram
 import (
 	"encoding/json"
 	"net/http"
+	"osint-scraper/internal/api/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
@@ -52,14 +53,16 @@ func (h *Handler) GetUserInfo(c *gin.Context) {
 		return
 	}
 
-	data, err := h.svc.GetUserInfo(c.Request.Context(), username)
+	result, err := h.svc.GetUserInfo(c.Request.Context(), username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	common.SetCacheHeader(c, result.CacheHit)
+
 	var userInfoResp UserInfoResponse
-	if err := json.Unmarshal(data, &userInfoResp); err != nil {
+	if err := json.Unmarshal(result.Data, &userInfoResp); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse response"})
 		return
 	}
