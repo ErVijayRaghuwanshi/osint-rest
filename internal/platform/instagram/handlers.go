@@ -3,7 +3,6 @@ package instagram
 import (
 	"encoding/json"
 	"net/http"
-	"osint-scraper/internal/api/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
@@ -20,7 +19,7 @@ func NewHandler(svc *Service, log zerolog.Logger) *Handler {
 
 // Ping godoc
 // @Summary      Check Instagram availability
-// @Description  Pings instagram.com to ensure site is reachable
+// @Description  Pings Instagram to ensure site is reachable
 // @Tags         Instagram
 // @Produce      json
 // @Success      200  {object}  PingResponse
@@ -53,16 +52,14 @@ func (h *Handler) GetUserInfo(c *gin.Context) {
 		return
 	}
 
-	result, err := h.svc.GetUserInfo(c.Request.Context(), username)
+	data, err := h.svc.GetUserInfo(c.Request.Context(), username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	common.SetCacheHeader(c, result.CacheHit)
-
 	var userInfoResp UserInfoResponse
-	if err := json.Unmarshal(result.Data, &userInfoResp); err != nil {
+	if err := json.Unmarshal(data, &userInfoResp); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse response"})
 		return
 	}

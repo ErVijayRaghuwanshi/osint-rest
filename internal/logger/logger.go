@@ -16,5 +16,14 @@ func New() Logger {
 			level = parsed
 		}
 	}
+
+	if os.Getenv("GIN_MODE") != "release" {
+		return zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "2006-01-02 15:04:05"}).
+			With().
+			Timestamp().
+			Logger().
+			Level(level)
+	}
+
 	return zerolog.New(os.Stdout).With().Timestamp().Logger().Level(level)
 }

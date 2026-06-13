@@ -34,6 +34,44 @@ This service is designed to support **multiple social media platforms** (Instagr
 
 ---
 
+## System Architecture
+
+```mermaid
+graph TD
+    Client["Client / OSINT Analyst"] -->|"API Request"| Router["Gin Router"]
+    
+    subgraph Gin API Server
+        Router -->|"Global Middleware"| Limiter["Rate Limiter"]
+        Router -->|"Global Middleware"| Auth["API Key Auth"]
+        Router -->|"Dynamic Routing"| Registry["Platform Registry"]
+        Registry -->|"Routes Mounted"| Snap["Snapchat Platform"]
+        Registry -->|"Routes Mounted"| Insta["Instagram Platform"]
+        Registry -->|"Routes Mounted"| X["X Platform"]
+        Registry -->|"Routes Mounted"| Jaco["Jaco Platform"]
+        Registry -->|"Routes Mounted"| Tele["Telegram Platform"]
+    end
+
+    subgraph Platform Services (internal/platform)
+        Insta -->|"Service Call"| BaseSvc["Base HTTP Service"]
+        Snap -->|"Service Call"| BaseSvc
+        X -->|"Service Call"| BaseSvc
+        Jaco -->|"Service Call"| BaseSvc
+        Tele -->|"Service Call"| BaseSvc
+    end
+
+    subgraph Service Core
+        BaseSvc -->|"1. Check Cache"| Cache["In-Memory Cache"]
+        BaseSvc -->|"2. Get rotated headers"| HM["Header Manager"]
+        BaseSvc -->|"3. Tracks failures"| HT["Health Tracker"]
+        HM -->|"Reads config"| File["headers.json"]
+        File -.->|"fsnotify hot reload"| Watcher["File Watcher"]
+    end
+
+    BaseSvc -->|"4. Rotated Outbound HTTP"| External["Target Social Platform"]
+```
+
+---
+
 ## Project Structure
 
 ```
@@ -52,12 +90,17 @@ osint-scraper/
 │   │   │   ├── apikey.go
 │   │   │   ├── cors.go
 │   │   │   └── ratelimit.go
-│   │   ├── common/                 # Shared response types
-│   │   │   └── responses.go
-│   │   ├── instagram/              # Instagram module
-│   │   ├── snapchat/               # Snapchat module
-│   │   ├── x/                      # X (Twitter) module
-│   │   └── jaco/                   # Jaco module
+│   │   └── common/                 # Shared response types
+│   │       └── responses.go
+│   │
+│   ├── platform/                   # Platform registry & modules
+│   │   ├── platform.go             # Platform interface definition
+│   │   ├── registry.go             # Service discovery & route mounting
+│   │   ├── instagram/              # Instagram scraper module
+│   │   ├── snapchat/               # Snapchat scraper module
+│   │   ├── x/                      # X (Twitter) scraper module
+│   │   ├── jaco/                   # Jaco scraper module
+│   │   └── telegram/               # Telegram scraper module
 │   │
 │   ├── httpclient/                 # Shared HTTP session & base service
 │   │   ├── session.go
@@ -73,10 +116,6 @@ osint-scraper/
 │   │
 │   ├── cache/                      # In-memory cache with TTL
 │   │   └── cache.go
-│   │
-│   ├── platform/                   # Platform interface & registry
-│   │   ├── platform.go
-│   │   └── registry.go
 │   │
 │   ├── config/
 │   │   └── config.go
@@ -202,20 +241,30 @@ POST   /admin/headers/:platform/:id/toggle # Toggle enabled/disabled
 
 ## Adding a New Platform Module
 
-1. Create module directory:
+1. Run the platform scaffolding script:
+   ```bash
+   make new-platform name=tiktok
    ```
-   internal/api/telegram/
-   ├── handlers.go   (embed zerolog.Logger, use c.Request.Context())
-   ├── routes.go
-   ├── service.go    (embed httpclient.BaseService)
-   └── models.go
+   This automatically generates the boilerplate files under `internal/platform/tiktok/`:
+   * `models.go` — API response structs.
+   * `service.go` — Scraper service conforming to the `Platform` interface.
+   * `handlers.go` — HTTP route handlers.
+   * `routes.go` — Router endpoint registrations.
+
+2. Register the service in the central router [router.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/api/router.go):
+   ```go
+   import "osint-scraper/internal/platform/tiktok"
+   
+   // ... inside NewRouter() ...
+   tiktokService := tiktok.NewService(hm, log)
+   tiktokService.SetCache(appCache)
+   tiktokService.SetHealthTracker(ht)
+   reg.Register(tiktokService)
    ```
 
-2. Register routes in `internal/api/router.go`
+3. Add platform headers to `config/headers.json` under the `"tiktok"` platform key.
 
-3. Add platform headers to `config/headers.json`
-
-4. Add Swagger annotations in handlers
+4. Implement custom scraper logic in `service.go` and update `models.go` with target API shapes.
 
 ---
 

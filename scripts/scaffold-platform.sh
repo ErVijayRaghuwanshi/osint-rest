@@ -19,7 +19,7 @@ NAME="$1"
 # Title-cased name for comments/tags (e.g. telegram -> Telegram)
 TITLE="$(echo "${NAME:0:1}" | tr '[:lower:]' '[:upper:]')${NAME:1}"
 
-DIR="internal/api/${NAME}"
+DIR="internal/platform/${NAME}"
 
 if [ -d "$DIR" ]; then
   echo "Error: $DIR already exists. Aborting."
@@ -60,6 +60,7 @@ import (
 	"osint-scraper/internal/header"
 	"osint-scraper/internal/httpclient"
 
+	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 )
 
@@ -73,9 +74,19 @@ func NewService(hm *header.Manager, log zerolog.Logger) *Service {
 	}
 }
 
-// CheckWebsite checks if ${TITLE} is reachable
-func (s *Service) CheckWebsite(ctx context.Context) bool {
+// Name returns the platform identifier.
+func (s *Service) Name() string {
+	return "${NAME}"
+}
+
+// Ping checks if the platform website is reachable.
+func (s *Service) Ping(ctx context.Context) bool {
 	return s.BaseService.CheckWebsite(ctx)
+}
+
+// RegisterRoutes registers the routes for this platform.
+func (s *Service) RegisterRoutes(rg *gin.RouterGroup) {
+	RegisterRoutes(rg, s, s.Log)
 }
 
 // GetUserInfo fetches user information from ${TITLE}
@@ -216,13 +227,12 @@ echo "  1. Update models.go with actual response structs"
 echo "  2. Update service.go with the correct base URL and API endpoint"
 echo "  3. Wire the platform in internal/api/router.go:"
 echo ""
-echo "     import \"osint-scraper/internal/api/${NAME}\""
+echo "     import \"osint-scraper/internal/platform/${NAME}\""
 echo ""
 echo "     ${NAME}Service := ${NAME}.NewService(hm, log)"
 echo "     ${NAME}Service.SetCache(appCache)"
 echo "     ${NAME}Service.SetHealthTracker(ht)"
-echo "     ${NAME}Group := r.Group(\"/api/${NAME}\")"
-echo "     ${NAME}.RegisterRoutes(${NAME}Group, ${NAME}Service, log)"
+echo "     reg.Register(${NAME}Service)"
 echo ""
 echo "  4. Add headers to config/headers.json under \"${NAME}\" platform"
 echo "  5. Run 'make run' to verify"

@@ -4,15 +4,17 @@ import (
 	"time"
 
 	"osint-scraper/internal/api/admin"
-	"osint-scraper/internal/api/instagram"
-	"osint-scraper/internal/api/jaco"
 	"osint-scraper/internal/api/middleware"
-	"osint-scraper/internal/api/snapchat"
-	"osint-scraper/internal/api/x"
 	"osint-scraper/internal/cache"
 	"osint-scraper/internal/config"
 	"osint-scraper/internal/header"
 	"osint-scraper/internal/logger"
+	"osint-scraper/internal/platform"
+	"osint-scraper/internal/platform/instagram"
+	"osint-scraper/internal/platform/jaco"
+	"osint-scraper/internal/platform/snapchat"
+	"osint-scraper/internal/platform/telegram"
+	"osint-scraper/internal/platform/x"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -20,10 +22,19 @@ import (
 )
 
 func NewRouter(cfg config.Config, log logger.Logger, hm *header.Manager, appCache cache.Cache, ht *header.HealthTracker, headerFilePath string) *gin.Engine {
-	r := gin.Default()
+	r := gin.New()
+
+	// Logger middleware (using zerolog)
+	r.Use(middleware.Zerologger(log))
+
+	// Recovery middleware (to catch panics and return 500)
+	r.Use(gin.Recovery())
 
 	// CORS
 	r.Use(middleware.CORS())
+
+	// Layered caching middleware
+	r.Use(middleware.CacheMiddleware(appCache, hm))
 
 	// Rate limiter: 60 req/sec per IP, burst 100
 	limiter := middleware.NewRateLimiter(60, 100, time.Second)
@@ -35,49 +46,40 @@ func NewRouter(cfg config.Config, log logger.Logger, hm *header.Manager, appCach
 	h := NewHandlers()
 	r.GET("/health", h.HealthCheck)
 
+	// Initialize Platform Registry
+	reg := platform.NewRegistry(log)
+
 	// -------------------------------
-	// Snapchat Route Group
+	// Register Platforms
 	// -------------------------------
+
 	snapService := snapchat.NewService(hm, log)
 	snapService.SetCache(appCache)
 	snapService.SetHealthTracker(ht)
-	snapGroup := r.Group("/api/snapchat")
-	{
-		snapchat.RegisterRoutes(snapGroup, snapService, log)
-	}
+	reg.Register(snapService)
 
-	// -------------------------------
-	// Instagram Route Group
-	// -------------------------------
 	instaService := instagram.NewService(hm, log)
 	instaService.SetCache(appCache)
 	instaService.SetHealthTracker(ht)
-	instaGroup := r.Group("/api/instagram")
-	{
-		instagram.RegisterRoutes(instaGroup, instaService, log)
-	}
+	reg.Register(instaService)
 
-	// -------------------------------
-	// X Route Group
-	// -------------------------------
 	xService := x.NewService(hm, log)
 	xService.SetCache(appCache)
 	xService.SetHealthTracker(ht)
-	xGroup := r.Group("/api/x")
-	{
-		x.RegisterRoutes(xGroup, xService, log)
-	}
+	reg.Register(xService)
 
-	// -------------------------------
-	// Jaco Route Group
-	// -------------------------------
 	jacoService := jaco.NewService(hm, log)
 	jacoService.SetCache(appCache)
 	jacoService.SetHealthTracker(ht)
-	jacoGroup := r.Group("/api/jaco")
-	{
-		jaco.RegisterRoutes(jacoGroup, jacoService, log)
-	}
+	reg.Register(jacoService)
+
+	teleService := telegram.NewService(hm, log)
+	teleService.SetCache(appCache)
+	teleService.SetHealthTracker(ht)
+	reg.Register(teleService)
+
+	// Mount all registered platforms under /api/<name>
+	reg.MountAll(r)
 
 	// -------------------------------
 	// Admin Route Group (API key protected)

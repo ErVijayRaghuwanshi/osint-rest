@@ -10,6 +10,7 @@ import (
 	"osint-scraper/internal/header"
 	"osint-scraper/internal/httpclient"
 
+	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 )
 
@@ -23,9 +24,19 @@ func NewService(hm *header.Manager, log zerolog.Logger) *Service {
 	}
 }
 
-// CheckWebsite checks if X is reachable
-func (s *Service) CheckWebsite(ctx context.Context) bool {
+// Name returns the platform identifier.
+func (s *Service) Name() string {
+	return "x"
+}
+
+// Ping checks if the platform website is reachable.
+func (s *Service) Ping(ctx context.Context) bool {
 	return s.BaseService.CheckWebsite(ctx)
+}
+
+// RegisterRoutes registers the routes for this platform.
+func (s *Service) RegisterRoutes(rg *gin.RouterGroup) {
+	RegisterRoutes(rg, s, s.Log)
 }
 
 // GetUserInfo fetches user information from X by screen name

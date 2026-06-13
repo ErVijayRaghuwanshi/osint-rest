@@ -368,7 +368,7 @@ const docTemplate = `{
         },
         "/api/instagram/ping": {
             "get": {
-                "description": "Pings instagram.com to ensure site is reachable",
+                "description": "Pings Instagram to ensure site is reachable",
                 "produces": [
                     "application/json"
                 ],
