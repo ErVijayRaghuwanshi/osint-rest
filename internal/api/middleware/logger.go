@@ -46,7 +46,7 @@ func Zerologger(log logger.Logger) gin.HandlerFunc {
 			Str("method", method).
 			Str("path", fullPath).
 			Str("ip", clientIP).
-			Dur("latency", latency).
+			Str("latency", latency.Round(time.Microsecond).String()).
 			Msg("HTTP request")
 	}
 }
