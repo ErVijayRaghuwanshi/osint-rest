@@ -77,8 +77,19 @@ func main() {
 	docs.SwaggerInfo.Description = cfg.Description
 
 	// ✅ Initialize cache
-	appCache := cache.NewMemoryCache(2 * time.Minute)
-	defer appCache.Close()
+	var appCache cache.Cache
+	if cfg.CacheType == "redis" {
+		log.Info().Str("addr", cfg.RedisAddr).Int("db", cfg.RedisDB).Msg("Initializing Redis cache")
+		appCache = cache.NewRedisCache(cfg.RedisAddr, cfg.RedisPassword, cfg.RedisDB)
+	} else {
+		log.Info().Msg("Initializing local in-memory cache")
+		appCache = cache.NewMemoryCache(2 * time.Minute)
+	}
+	defer func() {
+		if err := appCache.Close(); err != nil {
+			log.Error().Err(err).Msg("Failed to close cache client cleanly")
+		}
+	}()
 
 	// ✅ Watch header config for hot reload
 	watcherStop := make(chan struct{})

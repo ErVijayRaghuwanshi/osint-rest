@@ -11,6 +11,7 @@ type Cache interface {
 	Set(key string, value []byte, ttl time.Duration)
 	Delete(key string)
 	Flush()
+	Close() error
 }
 
 // entry holds a cached value and its expiration time.
@@ -86,8 +87,9 @@ func (c *MemoryCache) Flush() {
 }
 
 // Close stops the background janitor goroutine.
-func (c *MemoryCache) Close() {
+func (c *MemoryCache) Close() error {
 	close(c.stop)
+	return nil
 }
 
 // janitor periodically removes expired entries.

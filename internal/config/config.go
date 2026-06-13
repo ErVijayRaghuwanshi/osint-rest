@@ -1,22 +1,24 @@
 package config
 
 import (
-	// "crypto/des"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
 type Config struct {
-	ServerPort  string
-	SwaggerHost string
-	Version     string
-	Title       string
-	Description string
+	ServerPort    string
+	SwaggerHost   string
+	Version       string
+	Title         string
+	Description   string
+	CacheType     string
+	RedisAddr     string
+	RedisPassword string
+	RedisDB       int
 }
-
-
 
 // Load reads env vars and VERSION file
 func Load() *Config {
@@ -43,12 +45,35 @@ func Load() *Config {
 		description = "High-performance OSINT scraping microservice."
 	}
 
+	cacheType := os.Getenv("CACHE_TYPE")
+	if cacheType == "" {
+		cacheType = "memory"
+	}
+
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379"
+	}
+
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
+	redisDB := 0
+	if dbStr := os.Getenv("REDIS_DB"); dbStr != "" {
+		if val, err := strconv.Atoi(dbStr); err == nil {
+			redisDB = val
+		}
+	}
+
 	return &Config{
-		ServerPort:  port,
-		SwaggerHost: swaggerHost,
-		Version:     version,
-		Title:       title,
-		Description: description,
+		ServerPort:    port,
+		SwaggerHost:   swaggerHost,
+		Version:       version,
+		Title:         title,
+		Description:   description,
+		CacheType:     cacheType,
+		RedisAddr:     redisAddr,
+		RedisPassword: redisPassword,
+		RedisDB:       redisDB,
 	}
 }
 
