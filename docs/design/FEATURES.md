@@ -25,7 +25,7 @@ Incoming Request (GET)
 ```
 
 ### 1.1 Layered HTTP Middleware
-The `CacheMiddleware` (implemented in [cache.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/api/middleware/cache.go)) wraps Gin's `ResponseWriter` using a custom buffer writer. 
+The `CacheMiddleware` (implemented in [cache.go](../../internal/api/middleware/cache.go)) wraps Gin's `ResponseWriter` using a custom buffer writer. 
 
 * **Cache Keys**: Keys are formatted as `http:cache:<RequestURI>` (e.g. `http:cache:/api/jaco/userinfo?username=Uaegirl`). Since the full Request URI is used, query parameters (such as `username` or `limit`) are naturally isolated in different cache entries.
 * **Dynamic TTL Resolution**: The middleware parses the platform identifier from the request path (e.g., `/api/instagram/userinfo` -> `instagram`) and calls `hm.GetCacheTTL(platform)`.
@@ -69,7 +69,7 @@ All endpoints under the `/admin` path group are protected by the `AdminAPIKey` m
 | **`POST`** | `/admin/headers/:platform/:id/toggle` | Enable or disable a specific header entry | *None* |
 
 ### 2.3 Persistence Model
-When a modifying request is sent (e.g. `POST`, `PUT`, `DELETE`), the Admin Handlers (in [handlers.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/api/admin/handlers.go)) update the `HeaderManager` memory map and immediately write the updated JSON configuration back to the local file `/config/headers.json`.
+When a modifying request is sent (e.g. `POST`, `PUT`, `DELETE`), the Admin Handlers (in [handlers.go](../../internal/api/admin/handlers.go)) update the `HeaderManager` memory map and immediately write the updated JSON configuration back to the local file `/config/headers.json`.
 
 ---
 
@@ -78,13 +78,13 @@ When a modifying request is sent (e.g. `POST`, `PUT`, `DELETE`), the Admin Handl
 To ensure robust data collection and bypass anti-bot challenges, the scraper incorporates hot-reloading, failure-aware cooldowns, and proxy capabilities.
 
 ### 3.1 Header Reloading (Zero-Downtime Hot Reload)
-The `Watcher` engine (implemented in [watcher.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/header/watcher.go)) utilizes `fsnotify` to listen for filesystem modification write events on `config/headers.json`.
+The `Watcher` engine (implemented in [watcher.go](../../internal/header/watcher.go)) utilizes `fsnotify` to listen for filesystem modification write events on `config/headers.json`.
 * When the file is updated (either by the Admin API or via a Kubernetes ConfigMap/Persistent Volume update), the file watcher detects the write.
 * It immediately calls `HeaderManager.Reload()`, parsing the new JSON structure and updating the active headers memory maps.
 * **Benefit**: Credentials, sessions, and User-Agents can be updated dynamically without restarting the server or dropping active connections.
 
 ### 3.2 Header Cooldown / Auto-Disabling
-The `HealthTracker` (implemented in [health.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/header/health.go)) acts as a circuit breaker for individual header sets:
+The `HealthTracker` (implemented in [health.go](../../internal/header/health.go)) acts as a circuit breaker for individual header sets:
 * **Failure Count**: If an outbound request to a target platform fails (e.g., returns `403 Forbidden` or `429 Too Many Requests`), the platform service reports a failure.
 * **Auto-Disable Trigger**: If a specific header entry (e.g. `insta-1`) accumulates **5 consecutive failures**, the Health Tracker disables the header (`HeaderManager.ToggleHeaderSet(platform, id, false)`) and writes this state to the JSON config.
 * **Benefit**: Keeps the rotation clean by removing rate-limited or expired cookies from the active rotation pool, allowing them to "cool down" until updated by an administrator.

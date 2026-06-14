@@ -251,7 +251,7 @@ POST   /admin/headers/:platform/:id/toggle # Toggle enabled/disabled
    * `handlers.go` — HTTP route handlers.
    * `routes.go` — Router endpoint registrations.
 
-2. Register the service in the central router [router.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/api/router.go):
+2. Register the service in the central router [router.go](internal/api/router.go):
    ```go
    import "osint-scraper/internal/platform/tiktok"
    

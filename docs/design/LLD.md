@@ -9,7 +9,7 @@ This document details the concrete interfaces, data structures, and implementati
 The platform layer allows developers to add support for new social media providers by implementing a unified interface.
 
 ### 1.1 The Platform Interface
-Defined in [platform.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/platform/platform.go), the `Platform` interface requires the following structure:
+Defined in [platform.go](../../internal/platform/platform.go), the `Platform` interface requires the following structure:
 
 ```go
 package platform
@@ -29,7 +29,7 @@ type Platform interface {
 Every platform module (e.g. `instagram`, `x`, `snapchat`, `jaco`, `telegram`) implements this interface. 
 
 ### 1.2 The Platform Registry
-Defined in [registry.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/platform/registry.go), the `Registry` struct acts as a catalog of all active modules:
+Defined in [registry.go](../../internal/platform/registry.go), the `Registry` struct acts as a catalog of all active modules:
 
 ```go
 type Registry struct {
@@ -49,7 +49,7 @@ type Registry struct {
 The caching layer sits between the incoming API requests and the outbound scraping modules, optimizing performance and reducing external traffic.
 
 ### 2.1 The Cache Interface
-Defined in [cache.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/cache/cache.go), the `Cache` interface decouples storage logic from routing:
+Defined in [cache.go](../../internal/cache/cache.go), the `Cache` interface decouples storage logic from routing:
 
 ```go
 package cache
@@ -96,7 +96,7 @@ type MemoryCache struct {
   ```
 
 ### 2.3 RedisCache (Distributed Redis implementation)
-Defined in [redis.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/cache/redis.go), the `RedisCache` delegates caching to a Redis instance:
+Defined in [redis.go](../../internal/cache/redis.go), the `RedisCache` delegates caching to a Redis instance:
 
 ```go
 type RedisCache struct {
@@ -114,7 +114,7 @@ type RedisCache struct {
 All outbound requests pass through a standardized HTTP client layer to enforce timeouts, manage cookies, inject rotated headers, and handle errors.
 
 ### 3.1 Session Wrapper
-Defined in [session.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/httpclient/session.go), the `Session` struct encapsulates an HTTP client and cookies:
+Defined in [session.go](../../internal/httpclient/session.go), the `Session` struct encapsulates an HTTP client and cookies:
 
 ```go
 type Session struct {
@@ -128,7 +128,7 @@ type Session struct {
 * **Headers Merging**: Performs a non-destructive merge of default headers, session-level headers (e.g. CSRF tokens, authentication tokens), and per-request headers.
 
 ### 3.2 Base Platform Service
-Defined in [base_service.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/httpclient/base_service.go), `BaseService` provides the core lifecycle hooks for individual scrapers:
+Defined in [base_service.go](../../internal/httpclient/base_service.go), `BaseService` provides the core lifecycle hooks for individual scrapers:
 
 ```go
 type BaseService struct {
@@ -168,7 +168,7 @@ type BaseService struct {
 Rotation and runtime updating of API headers are coordinated through files, watchers, and health state indicators.
 
 ### 4.1 Configurations Models
-Defined in [model.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/header/model.go), structural configurations mirror the `headers.json` schema:
+Defined in [model.go](../../internal/header/model.go), structural configurations mirror the `headers.json` schema:
 
 ```go
 type HeaderConfig struct {
@@ -191,7 +191,7 @@ type HeaderEntry struct {
 ```
 
 ### 4.2 Header Manager
-Defined in [manager.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/header/manager.go), the `Manager` regulates platforms, active configurations, and rotation states:
+Defined in [manager.go](../../internal/header/manager.go), the `Manager` regulates platforms, active configurations, and rotation states:
 
 ```go
 type Manager struct {
@@ -205,13 +205,13 @@ type Manager struct {
 * **Locking**: Employs write-locks (`m.mu.Lock()`) for CRUD operations, and read-locks (`m.mu.RLock()`) for config queries and TTL resolutions to ensure complete data consistency across concurrent requests.
 
 ### 4.3 fsnotify Hot Reloading
-Defined in [watcher.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/header/watcher.go), `WatchAndReload` listens to write and creation events on the JSON file:
+Defined in [watcher.go](../../internal/header/watcher.go), `WatchAndReload` listens to write and creation events on the JSON file:
 
 * When a filesystem change is received, the file is re-parsed via `LoadHeaderConfig`.
 * On success, `Manager.Reload` is executed, hot-swapping the active configuration in memory without drop-outs or restarts.
 
 ### 4.4 HealthTracker Auto-Disabling
-Defined in [health.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/header/health.go), the circuit breaker monitors failure metrics per header entry:
+Defined in [health.go](../../internal/header/health.go), the circuit breaker monitors failure metrics per header entry:
 
 ```go
 type HealthTracker struct {

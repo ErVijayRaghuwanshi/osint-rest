@@ -9,7 +9,7 @@ This document outlines the roadmap for the OSINT Scraper service, broken down in
 **Objective**: Maximize evasion of bot detectors and rate-limit blocks by routing outbound scraper requests through proxy networks.
 
 ### 1. Proxy-to-Header Pairing
-* Add a `proxy` field to individual `HeaderEntry` items in [model.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/header/model.go):
+* Add a `proxy` field to individual `HeaderEntry` items in [model.go](../../internal/header/model.go):
   ```json
   {
     "id": "instagram-session-1",
@@ -23,7 +23,7 @@ This document outlines the roadmap for the OSINT Scraper service, broken down in
 * Ensure specific sessions are pinned to the same residential proxy IP. This prevents anti-bot systems from flagging account cookies when requests arrive from different geographic regions in short succession.
 
 ### 2. Dynamically Rotated HTTP Transports
-* Extend [session.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/httpclient/session.go) to instantiate a dedicated `http.Transport` for each distinct proxy configuration.
+* Extend [session.go](../../internal/httpclient/session.go) to instantiate a dedicated `http.Transport` for each distinct proxy configuration.
 * Enable HTTP/2 and HTTP/3 support on proxy connections to mirror browser behaviors.
 
 ### 3. User-Agent Spoofing Engine
@@ -52,7 +52,7 @@ This document outlines the roadmap for the OSINT Scraper service, broken down in
 ```
 
 ### 1. Redis Distributed Caching & Rate Limiting
-* Fully transition default deployments from `MemoryCache` to [redis.go](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/cache/redis.go).
+* Fully transition default deployments from `MemoryCache` to [redis.go](../../internal/cache/redis.go).
 * Implement distributed rate-limiting middleware using Redis sliding-window counters to ensure global request thresholds are respected across multiple instances.
 
 ### 2. Distributed Lock Management (Redlock)
@@ -78,7 +78,7 @@ This document outlines the roadmap for the OSINT Scraper service, broken down in
 * Package default Grafana dashboards for quick visualization of scraping health.
 
 ### 2. HashiCorp Vault Integration
-* Move sensitive session cookies and API keys out of [headers.json](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/config/headers.json) and retrieve them dynamically from HashiCorp Vault.
+* Move sensitive session cookies and API keys out of [headers.json](../../config/headers.json) and retrieve them dynamically from HashiCorp Vault.
 * Support hot reloading of credentials directly from Vault transit paths.
 
 ### 3. Client Authentication & Tenant Isolation
@@ -110,7 +110,7 @@ This document outlines the roadmap for the OSINT Scraper service, broken down in
 ```
 
 ### 1. Real-time Status Monitoring
-* Build a React/Next.js dashboard utilizing WebSockets to show real-time stats from the [HealthTracker](file:///Users/ervijay/Documents/Programs/Repo/osint-scraper/internal/header/health.go).
+* Build a React/Next.js dashboard utilizing WebSockets to show real-time stats from the [HealthTracker](../../internal/header/health.go).
 * Display live success/failure rates and highlight disabled headers.
 
 ### 2. Pool Management UI

@@ -39,14 +39,14 @@ The service is divided into three primary layers:
                            ▼
 ┌────────────────────────────────────────────────────────┐
 │                   Platform Engines                     │
-│ - Snapchat, Instagram, X, Jaco, Telegram Services     │
+│ - Snapchat, Instagram, X, Jaco, Telegram Services      │
 └──────────────────────────┬─────────────────────────────┘
                            │
                            ▼
 ┌────────────────────────────────────────────────────────┐
 │                   Core Client Engine                   │
 │ - Session Wrapper, Cache, Header Rotation & Watcher    │
-└────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────┘
 ```
 
 1. **API Layer**: Handles incoming HTTP requests, CORS, rate limiting, Swagger spec generation, and overall lifecycle.
