@@ -14,7 +14,8 @@ config/headers.json
 .DS_Store
 
 # Swagger (auto-generated)
-docs/
+docs/*
+!docs/design/
 
 # Go
 vendor/
