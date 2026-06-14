@@ -40,7 +40,7 @@ This service is designed to support **multiple social media platforms** (Instagr
 graph TD
     Client["Client / OSINT Analyst"] -->|"API Request"| Router["Gin Router"]
     
-    subgraph Gin API Server
+    subgraph Gin_API_Server ["Gin API Server"]
         Router -->|"Global Middleware"| Limiter["Rate Limiter"]
         Router -->|"Global Middleware"| Auth["API Key Auth"]
         Router -->|"Dynamic Routing"| Registry["Platform Registry"]
@@ -51,7 +51,7 @@ graph TD
         Registry -->|"Routes Mounted"| Tele["Telegram Platform"]
     end
 
-    subgraph Platform Services (internal/platform)
+    subgraph Platform_Services ["Platform Services (internal/platform)"]
         Insta -->|"Service Call"| BaseSvc["Base HTTP Service"]
         Snap -->|"Service Call"| BaseSvc
         X -->|"Service Call"| BaseSvc
@@ -59,7 +59,7 @@ graph TD
         Tele -->|"Service Call"| BaseSvc
     end
 
-    subgraph Service Core
+    subgraph Service_Core ["Service Core"]
         BaseSvc -->|"1. Check Cache"| Cache["In-Memory Cache"]
         BaseSvc -->|"2. Get rotated headers"| HM["Header Manager"]
         BaseSvc -->|"3. Tracks failures"| HT["Health Tracker"]
